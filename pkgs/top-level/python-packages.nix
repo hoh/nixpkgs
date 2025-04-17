@@ -12005,6 +12005,8 @@ self: super: with self; {
 
   pydantic = callPackage ../development/python-modules/pydantic { };
 
+  pydantic-ai = callPackage ../development/python-modules/pydantic-ai { };
+
   pydantic-argparse-extensible =
     callPackage ../development/python-modules/pydantic-argparse-extensible
       { };
