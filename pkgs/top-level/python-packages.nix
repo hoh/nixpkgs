@@ -836,6 +836,8 @@ self: super: with self; {
 
   aresponses = callPackage ../development/python-modules/aresponses { };
 
+  argbind = callPackage ../development/python-modules/argbind { };
+
   argcomplete = callPackage ../development/python-modules/argcomplete { };
 
   argh = callPackage ../development/python-modules/argh { };
@@ -3426,6 +3428,10 @@ self: super: with self; {
 
   desktop-notifier = callPackage ../development/python-modules/desktop-notifier { };
 
+  descript-audio-codec = callPackage ../development/python-modules/descript-audio-codec { };
+
+  descript-audiotools = callPackage ../development/python-modules/descript-audiotools { };
+
   detect-secrets = callPackage ../development/python-modules/detect-secrets { };
 
   detectron2 = callPackage ../development/python-modules/detectron2 { };
@@ -3447,6 +3453,8 @@ self: super: with self; {
   dfdiskcache = callPackage ../development/python-modules/dfdiskcache { };
 
   diagrams = callPackage ../development/python-modules/diagrams { };
+
+  dia-tts = callPackage ../development/python-modules/dia-tts { };
 
   diceware = callPackage ../development/python-modules/diceware { };
 
