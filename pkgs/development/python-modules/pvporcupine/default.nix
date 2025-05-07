@@ -2,56 +2,39 @@
 , fetchFromGitHub
 , buildPythonPackage
 , setuptools   # from python3Packages
-, git          # from the main pkgs set
+, git
 }:
 
 buildPythonPackage rec {
-  pname = "pvporcupine";
-  version = "3.0.4";
+  pname       = "pvporcupine";
+  version     = "3.0.4";
 
   src = fetchFromGitHub {
     owner = "Picovoice";
     repo  = "porcupine";
-    rev   = "${version}";
-    # Replace this with the real sha256, e.g. via:
-    # nix-prefetch-url --print-path \
-    #   https://github.com/Picovoice/porcupine/archive/refs/tags/v${version}.tar.gz
+    rev   = version;
+    # Replace this with the real sha256 via:
+    # nix-prefetch-url --unpack \
+    #   https://github.com/Picovoice/porcupine/archive/refs/tags/${version}.tar.gz
     sha256 = "sha256-nloPeumJuBobjKS+vq1SDPO35QkvR7ye0Ig+akqUg4A=";
   };
 
-  # src = fetchPypi {
-  #   inherit pname version;
-  #   sha256 = "";  # replace with actual hash via `nix-prefetch-url`
-  # };
+  # Start build/install phases in binding/python
+  sourceRoot = "source/binding/python";
 
-  # setup.py uses "git clean -dfx" and Python setuptools
-  nativeBuildInputs = [ setuptools git ];
+  nativeBuildInputs    = [ setuptools git ];    # needed for setup.py invocation
+  propagatedBuildInputs = [];               # no extra Python deps
+  doCheck              = false;             # skip hardware-dependent tests
 
-  # No external Python dependencies beyond stdlib
-  propagatedBuildInputs = [];
-
-  # Skip tests (they rely on audio hardware)
-  doCheck = false;
-
-  # Run setup.py from binding/python so that it can locate lib/ and resources/
-  buildPhase = ''
-    cd ${src}/binding/python
-    python3 setup.py build
-  '';
-
-  installPhase = ''
-    cd ${src}/binding/python
-    python3 setup.py install \
-      --prefix=$out \
-      --single-version-externally-managed \
-      --record=$out/record.txt
-  '';
-
+  # No custom buildPhase/installPhase needed—
+  # default python build hooks will run here:
+  #   python setup.py build
+  #   python setup.py install ...
+  
   meta = with lib; {
-    description = "Porcupine wake word engine Python SDK with prebuilt binaries and resources"; 
-    homepage    = "https://github.com/Picovoice/porcupine"; 
-    license     = licenses.asl20; 
+    description = "Porcupine wake word engine Python SDK with prebuilt binaries and resources";
+    homepage    = "https://github.com/Picovoice/porcupine";
+    license     = licenses.asl20;
     maintainers = with maintainers; [ ];
   };
 }
-

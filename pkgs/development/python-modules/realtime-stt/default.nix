@@ -5,7 +5,7 @@
 , pyaudio            # from python3Packages
 , faster-whisper     # from python3Packages
 , pvporcupine        # from python3Packages
-, webrtcvad-wheels   # from python3Packages
+, webrtcvad   # from python3Packages
 , halo               # from python3Packages
 , torch              # from python3Packages
 , torchaudio         # from python3Packages
@@ -24,8 +24,7 @@ buildPythonPackage rec {
     owner = "KoljaB";
     repo  = "RealtimeSTT";
     rev   = "v${version}";
-    # replace with the actual sha256:
-    sha256 = "0l2a1h93b4g8z5dm1r9x7vf6p5c3n8k2qb0y7w6f1zs4dj9v0c2";
+    sha256 = "sha256-cOQAPUjhjMjWeSyR3WCvW/L20w83hyCuarRhg6r4pZA=";
   };
 
   # needed to run setup.py
@@ -36,7 +35,7 @@ buildPythonPackage rec {
     pyaudio
     faster-whisper
     pvporcupine
-    webrtcvad-wheels
+    webrtcvad
     halo
     torch
     torchaudio
