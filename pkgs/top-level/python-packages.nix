@@ -10503,6 +10503,8 @@ self: super: with self; {
     openvino-native = pkgs.openvino.override { python3Packages = self; };
   };
 
+  openwakeword = callPackage ../development/python-modules/openwakeword { };
+
   openwebifpy = callPackage ../development/python-modules/openwebifpy { };
 
   openwrt-luci-rpc = callPackage ../development/python-modules/openwrt-luci-rpc { };
@@ -14863,6 +14865,8 @@ self: super: with self; {
   readme-renderer = callPackage ../development/python-modules/readme-renderer { };
 
   readthedocs-sphinx-ext = callPackage ../development/python-modules/readthedocs-sphinx-ext { };
+
+  realtime-stt = callPackage ../development/python-modules/realtime-stt { };
 
   rebulk = callPackage ../development/python-modules/rebulk { };
 
