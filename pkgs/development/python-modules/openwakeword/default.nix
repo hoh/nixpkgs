@@ -4,6 +4,7 @@
 , setuptools         # from python3Packages
 , onnxruntime        # from python3Packages
 # , tflite-runtime     # from python3Packages
+, scikit-learn
 }:
 
 buildPythonPackage rec {
@@ -22,6 +23,7 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     onnxruntime     # ONNX inference backend
     # tflite-runtime  # TensorFlow Lite inference backend
+    scikit-learn
   ];
 
   # Speex noise suppression is optional; to enable it, install the system
