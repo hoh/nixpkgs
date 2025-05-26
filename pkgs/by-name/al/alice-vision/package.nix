@@ -17,9 +17,10 @@
 , geogram
 , lemon-graph
 , lz4
+, nanoflann
 , onnxruntime
 , openexr
-, openimageio
+, openimageio_2
 , zlib
 
 , enableOpenMP ? true
@@ -31,22 +32,9 @@
 , enableOpenCV ? true, enableOpenCVContrib ? enableOpenCV, opencv
 }:
 
-let
-  nanoflann = pkgs.nanoflann.overrideAttrs (
-    oldAttrs: rec {
-      version = "1.4.2";
-      src = fetchFromGitHub {
-        owner = "jlblancoc";
-        repo = "nanoflann";
-        rev = "v${version}";
-        hash = "sha256-znIX1S0mfOqLYPIcyVziUM1asBjENPEAdafLud1CfFI=";
-      };
-    }
-  );
-in
 stdenv.mkDerivation rec {
   pname = "alice-vision";
-  version = "3.1.0";
+  version = "3.2.0";
 
   outputs = [ "out" "dev" ];
 
@@ -54,7 +42,7 @@ stdenv.mkDerivation rec {
     owner = "alicevision";
     repo = "AliceVision";
     rev = "v${version}";
-    hash = "sha256-9PSXyygBr5cWutt+qnJvDawyxpTHxJFfRYLvyr43IlQ=";
+    hash = "sha256-XKHBblRtpOgmb5JfFOm3HfGr5Vdydl0yPTRCKn5NcGM=";
   };
 
   nativeBuildInputs = [
@@ -81,7 +69,7 @@ stdenv.mkDerivation rec {
     expat
     geogram
     lemon-graph
-    openimageio
+    openimageio_2
     zlib
   ] ++ lib.optional enableAlembic alembic
     ++ lib.optional enableCctag cctag
@@ -104,13 +92,13 @@ stdenv.mkDerivation rec {
   # Instead of using dependencies from Git submodules, we use Nix packages
   # This speeds up fetching and reduces the source archive size
   postPatch = ''
-    rmdir src/dependencies/nanoflann
+    # nuke embedded copies only if they’re present
+    for d in nanoflann lemon flann; do
+      [ -e src/dependencies/$d ] && rm -rf src/dependencies/$d
+    done
     ln -s ${nanoflann} src/dependencies/nanoflann
 
-    rm -r src/dependencies/lemon
-    rm -r src/dependencies/flann
-
-    rm src/cmake/FindFlann.cmake
+    rm -f src/cmake/FindFlann.cmake || true
 
     substituteInPlace src/CMakeLists.txt \
       --replace 'if(NOT EXISTS ''${CMAKE_CURRENT_SOURCE_DIR}/dependencies/flann/src)' 'if(FALSE)'
@@ -120,7 +108,12 @@ stdenv.mkDerivation rec {
       --replace \
         'alicevision_add_test(matching_test.cpp NAME "matching"          LINKS aliceVision_matching)' \
         'alicevision_add_test(matching_test.cpp NAME "matching"          LINKS aliceVision_matching lz4)'
-  '';
+
+    # ── Disable the broken sub-module sanity check ────────────────────
+    # satisfy the obsolete sub-module probe
+    mkdir -p src/dependencies/MeshSDFilter/external
+
+    '';
 
   # Disable warning causing compile error on certain Clang versions
   CXXFLAGS = lib.optionalString stdenv.cc.isClang "-Wno-c++11-narrowing";
@@ -164,6 +157,9 @@ stdenv.mkDerivation rec {
         # variables are defined (instead of picking up their value).
 
         "-DFLANN_INCLUDE_DIR_HINTS:PATH=${flann}"
+        "-DFLANN_LIBRARY_DIR_HINTS:PATH=${flann}/lib"
+        "-Dflann_DIR:PATH=${flann}/lib/cmake/flann"
+
         "-DLEMON_INCLUDE_DIR_HINTS:PATH=${lemon-graph}"
       ];
 

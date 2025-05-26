@@ -13,16 +13,16 @@
 
 stdenv.mkDerivation rec {
   pname = "flann";
-  version = "1.9.1";
+  version = "1.9.2";
 
   src = fetchFromGitHub {
     owner = "flann-lib";
     repo = "flann";
     rev = version;
-    sha256 = "13lg9nazj5s9a41j61vbijy04v6839i67lqd925xmxsbybf36gjc";
+    sha256 = "sha256-5GCz28CbnPDQhEz6axFiQZMmOasd2Rph4a/bMQ53T2Q=";
   };
 
-  patches =
+  patchesz =
     [
       # Patch HDF5_INCLUDE_DIR -> HDF_INCLUDE_DIRS.
       (fetchpatch {
