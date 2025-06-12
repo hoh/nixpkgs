@@ -2711,6 +2711,8 @@ self: super: with self; {
 
   chatlas = callPackage ../development/python-modules/chatlas { };
 
+  chatterbox = callPackage ../development/python-modules/chatterbox { };
+
   check-manifest = callPackage ../development/python-modules/check-manifest { };
 
   checkdmarc = callPackage ../development/python-modules/checkdmarc { };
@@ -3183,6 +3185,8 @@ self: super: with self; {
   configshell-fb = callPackage ../development/python-modules/configshell-fb { };
 
   configupdater = callPackage ../development/python-modules/configupdater { };
+
+  conformer = callPackage ../development/python-modules/conformer { };
 
   confluent-kafka = callPackage ../development/python-modules/confluent-kafka { };
 
@@ -17416,6 +17420,8 @@ self: super: with self; {
   s3-credentials = callPackage ../development/python-modules/s3-credentials { };
 
   s3fs = callPackage ../development/python-modules/s3fs { };
+
+  s3tokenizer = callPackage ../development/python-modules/s3tokenizer { };
 
   s3transfer = callPackage ../development/python-modules/s3transfer { };
 
