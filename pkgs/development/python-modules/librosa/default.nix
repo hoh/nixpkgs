@@ -85,6 +85,13 @@ buildPythonPackage rec {
     writableTmpDirAsHomeHook
   ] ++ optional-dependencies.matplotlib;
 
+  postPatch = ''
+    substituteInPlace librosa/core/notation.py \
+      --replace "cache=True" "cache=False"
+    substituteInPlace librosa/filters.py \
+      --replace "cache=True" "cache=False"
+  '';
+
   disabledTests =
     [
       # requires network access
