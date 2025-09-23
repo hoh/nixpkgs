@@ -10647,6 +10647,8 @@ self: super: with self; {
 
   nemosis = callPackage ../development/python-modules/nemosis { };
 
+  nemo-toolkit = callPackage ../development/python-modules/nemo-toolkit { };
+
   nengo = callPackage ../development/python-modules/nengo { };
 
   neo = callPackage ../development/python-modules/neo { };
