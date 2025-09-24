@@ -41,6 +41,7 @@
 
   # Manually added
   lhoste,
+  jiwer,
 }:
 
 buildPythonPackage rec {
@@ -72,7 +73,7 @@ buildPythonPackage rec {
   # If upstream uses setuptools_scm, keep version deterministic.
   env.SETUPTOOLS_SCM_PRETEND_VERSION = version;
 
-  propagatedBuildInputs = [
+  dependencies = [
     # core
     torch
     lightning
@@ -104,6 +105,7 @@ buildPythonPackage rec {
 
     # Manually added
     lhoste
+    jiwer
   ];
 
   # disabled = lib.pythonOlder "3.10";
