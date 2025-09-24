@@ -45,6 +45,7 @@
   pyannote-core,
   pyannote-metrics,
   pydub,
+  editdistance,
 }:
 
 buildPythonPackage rec {
@@ -112,6 +113,7 @@ buildPythonPackage rec {
     pyannote-core
     pyannote-metrics
     pydub
+    editdistance
   ];
 
   # disabled = lib.pythonOlder "3.10";
