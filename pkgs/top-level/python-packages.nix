@@ -8702,6 +8702,8 @@ self: super: with self; {
 
   lightwave2 = callPackage ../development/python-modules/lightwave2 { };
 
+  lilcom = callPackage ../development/python-modules/lilcom {};
+
   lima = callPackage ../development/python-modules/lima { };
 
   lime = callPackage ../development/python-modules/lime { };
