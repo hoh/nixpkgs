@@ -39,9 +39,12 @@
   wget,
   wrapt,
 
-  # Manually added
+  # https://github.com/NVIDIA-NeMo/NeMo/blob/main/requirements/requirements_asr.txt
   lhoste,
   jiwer,
+  pyannote-core,
+  pyannote-metrics,
+  pydub,
 }:
 
 buildPythonPackage rec {
@@ -106,6 +109,9 @@ buildPythonPackage rec {
     # Manually added
     lhoste
     jiwer
+    pyannote-core
+    pyannote-metrics
+    pydub
   ];
 
   # disabled = lib.pythonOlder "3.10";
