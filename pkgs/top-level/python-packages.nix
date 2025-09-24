@@ -8399,6 +8399,8 @@ self: super: with self; {
 
   lhapdf = toPythonModule (pkgs.lhapdf.override { python3 = python; });
 
+  lhoste = callPackage ../development/python-modules/lhoste {};
+
   lib4package = callPackage ../development/python-modules/lib4package { };
 
   lib4sbom = callPackage ../development/python-modules/lib4sbom { };
