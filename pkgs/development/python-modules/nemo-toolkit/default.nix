@@ -1,42 +1,46 @@
-{ lib
-, buildPythonPackage
-, fetchFromGitHub
+{
+  lib,
+  buildPythonPackage,
+  fetchFromGitHub,
 
-# hooks
-, pythonRelaxDepsHook
+  # hooks
+  pythonRelaxDepsHook,
 
-# build system
-, setuptools
-, wheel
+  # build system
+  setuptools,
+  wheel,
 
-# core runtime deps
-, torch
-, lightning
-, hydra-core
-, omegaconf
-, numpy
-, packaging
-, pydantic
-, protobuf
-, pyyaml
-, torchmetrics
-, tqdm
-, transformers
-, sentencepiece
-, huggingface-hub
-, filelock
-, regex
+  # core runtime deps
+  torch,
+  lightning,
+  hydra-core,
+  omegaconf,
+  numpy,
+  packaging,
+  pydantic,
+  protobuf,
+  pyyaml,
+  torchmetrics,
+  tqdm,
+  transformers,
+  sentencepiece,
+  huggingface-hub,
+  filelock,
+  regex,
 
-# additional deps flagged by pythonRuntimeDepsCheck
-, fsspec
-, numba
-, onnx
-, python-dateutil
-, ruamel-yaml
-, scikit-learn
-, text-unidecode
-, wget
-, wrapt
+  # additional deps flagged by pythonRuntimeDepsCheck
+  fsspec,
+  numba,
+  onnx,
+  python-dateutil,
+  ruamel-yaml,
+  scikit-learn,
+  text-unidecode,
+  wget,
+  wrapt,
+
+  # Manually added
+  lhoste,
 }:
 
 buildPythonPackage rec {
@@ -97,6 +101,9 @@ buildPythonPackage rec {
     numba
     onnx
     scikit-learn
+
+    # Manually added
+    lhoste
   ];
 
   # disabled = lib.pythonOlder "3.10";
