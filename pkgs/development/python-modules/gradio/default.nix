@@ -188,6 +188,12 @@ buildPythonPackage rec {
   ++ optional-dependencies.oauth
   ++ pydantic.optional-dependencies.email;
 
+  postPatch = ''
+    substituteInPlace requirements.txt \
+      --replace-fail 'pillow>=8.0,<12.0' 'pillow>=8.0' \
+      --replace-fail 'gradio_client==1.13.3' 'gradio_client'
+  '';
+
   preBuild = ''
     pnpm build
     pnpm package
