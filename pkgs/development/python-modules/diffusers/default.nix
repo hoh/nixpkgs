@@ -45,13 +45,14 @@
 
 buildPythonPackage rec {
   pname = "diffusers";
-  version = "0.35.1";
+  version = "0.35.1-dev";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "huggingface";
     repo = "diffusers";
-    tag = "v${version}";
+    # tag = "v${version}";
+    rev = "5ffb73d4aeac9eaef8366d7b21872d64009bd1c7";
     hash = "sha256-VZXf1YCIFtzuBWaeYG3A+AyqnMEAKEI2nStjuPJ8ZTk=";
   };
 
