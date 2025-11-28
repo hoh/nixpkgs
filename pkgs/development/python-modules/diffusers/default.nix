@@ -14,6 +14,7 @@
   pillow,
   regex,
   requests,
+  httpx,
   safetensors,
 
   # optional dependencies
@@ -45,7 +46,7 @@
 
 buildPythonPackage rec {
   pname = "diffusers";
-  version = "0.35.1-dev";
+  version = "0.36.0-dev0";
   pyproject = true;
 
   src = fetchFromGitHub {
@@ -53,7 +54,7 @@ buildPythonPackage rec {
     repo = "diffusers";
     # tag = "v${version}";
     rev = "5ffb73d4aeac9eaef8366d7b21872d64009bd1c7";
-    hash = "sha256-VZXf1YCIFtzuBWaeYG3A+AyqnMEAKEI2nStjuPJ8ZTk=";
+    hash = "sha256-2fDHNom+Sk0f8aVuSaQso1QWN08gTttryrgXM8sZDug=";
   };
 
   build-system = [ setuptools ];
@@ -66,6 +67,7 @@ buildPythonPackage rec {
     pillow
     regex
     requests
+    httpx
     safetensors
   ];
 
