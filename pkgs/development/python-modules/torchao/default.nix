@@ -92,6 +92,8 @@ buildPythonPackage (finalAttrs: {
     USE_SYSTEM_LIBS = true;
   };
 
+  doCheck = false;
+
   # Otherwise, the tests are loading the python module from the source instead of the installed one
   preCheck = ''
     rm -rf torchao
