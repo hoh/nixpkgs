@@ -24,6 +24,7 @@
   pytestCheckHook,
   torch,
   universal-pathlib,
+  bashInteractive,
 }:
 
 buildPythonPackage rec {
@@ -59,7 +60,13 @@ buildPythonPackage rec {
     pytestCheckHook
     torch
     universal-pathlib
+    bashInteractive
   ];
+
+  preCheck = ''
+    export COLUMNS=200
+    export LINES=200
+  '';
 
   pythonImportsCheck = [ "tyro" ];
 
