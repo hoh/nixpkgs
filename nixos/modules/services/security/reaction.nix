@@ -181,7 +181,7 @@ in
           StateDirectoryMode = "0750";
           LogsDirectory = "reaction";
           LogsDirectoryMode = "0750";
-          UMask = 0077;
+          UMask = "0077";
 
           RemoveIPC = true;
           PrivateTmp = true;
