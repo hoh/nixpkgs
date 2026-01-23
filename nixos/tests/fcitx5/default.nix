@@ -81,7 +81,8 @@
       user = nodes.machine.users.users.alice;
       xauth = "${user.home}/.Xauthority";
     in
-    /* python */ ''
+    # python
+    ''
       start_all()
 
       machine.wait_for_x()
