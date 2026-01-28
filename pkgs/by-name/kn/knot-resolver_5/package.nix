@@ -116,8 +116,7 @@ let
     ++ [
       fstrm
       protobufc
-    ] # dnstap support
-    ;
+    ]; # dnstap support
 
     mesonFlags = [
       "-Dkeyfile_default=${dns-root-data}/root.ds"
@@ -128,9 +127,8 @@ let
     ]
     ++ optional finalAttrs.doInstallCheck "-Dunit_tests=enabled"
     ++ optional finalAttrs.doInstallCheck "-Dconfig_tests=enabled"
-    ++ optional stdenv.hostPlatform.isLinux "-Dsystemd_files=enabled" # used by NixOS service
+    ++ optional stdenv.hostPlatform.isLinux "-Dsystemd_files=enabled"; # used by NixOS service
     #"-Dextra_tests=enabled" # not suitable as in-distro tests; many deps, too.
-    ;
 
     postInstall = ''
       rm "$out"/lib/libkres.a

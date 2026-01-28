@@ -30,9 +30,8 @@ writeShellApplication {
       stm32flash
       dfu-util
     ]
-    ++ lib.optionals (matchPlatform == "lpc176x") [ dfu-util ]
+    ++ lib.optionals (matchPlatform == "lpc176x") [ dfu-util ];
   # bossac, hid-flash and RP2040 flash binaries are built by klipper-firmware
-  ;
   text =
     # generic USB script for most things with serial and bootloader (see MCU_TYPES in scripts/flash_usb.py)
     if matchBoard != null && matchPlatform != null then

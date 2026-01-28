@@ -1019,8 +1019,7 @@ stdenv.mkDerivation (
       ++ [
         "data"
         "out"
-      ] # We need an "out" output because we get an error otherwise. It's just an empty dir.
-    ;
+      ]; # We need an "out" output because we get an error otherwise. It's just an empty dir.
 
     postInstall = optionalString buildQtFaststart ''
       install -D tools/qt-faststart -t $bin/bin

@@ -114,8 +114,7 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   doCheck =
-    !stdenv.hostPlatform.isMusl # iconv binary
-  ;
+    !stdenv.hostPlatform.isMusl; # iconv binary
 
   passthru.tests = {
     nixos = nixosTests.man;

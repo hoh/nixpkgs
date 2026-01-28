@@ -98,10 +98,9 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optional withLibsoup libsoup_2_4
     ++ lib.optional withMtp libmtp
     ++ lib.optional withXfce4ui libxfce4ui
-    ++ lib.optional withTotemPlParser totem-pl-parser
+    ++ lib.optional withTotemPlParser totem-pl-parser;
   # ++ lib.optional withGrilo grilo
   # ++ lib.optional withRygel rygel
-  ;
 
   CFLAGS = [ "-DHAVE_PARANOIA_NEW_INCLUDES" ];
 

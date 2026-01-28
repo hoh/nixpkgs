@@ -505,13 +505,11 @@ in
         cfg.clients != { } && (versionOlder kernel.version "5.6")
       ) kernelPackages.wireguard;
 
-      environment.systemPackages = toClientList (client: client.wrapper)
+      environment.systemPackages = toClientList (client: client.wrapper);
       # omitted due to https://github.com/netbirdio/netbird/issues/1562
       #++ optional (cfg.clients != { }) cfg.package
       # omitted due to https://github.com/netbirdio/netbird/issues/1581
       #++ optional (cfg.clients != { } && cfg.ui.enable) cfg.ui.package
-      ;
-
       networking.dhcpcd.denyInterfaces = toClientList (client: client.interface);
       networking.networkmanager.unmanaged = toClientList (client: "interface-name:${client.interface}");
 
