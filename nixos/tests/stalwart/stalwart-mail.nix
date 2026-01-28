@@ -55,7 +55,8 @@ in
       ];
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       main.wait_for_unit("stalwart-mail.service")
       main.wait_for_open_port(587)

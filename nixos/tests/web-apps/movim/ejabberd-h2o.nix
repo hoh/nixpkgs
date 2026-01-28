@@ -239,7 +239,8 @@ in
       };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       ejabberdctl = "su ejabberd -s $(which ejabberdctl) "
 

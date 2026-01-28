@@ -21,7 +21,8 @@ in
       };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       @polling_condition
       def matter_server_running():

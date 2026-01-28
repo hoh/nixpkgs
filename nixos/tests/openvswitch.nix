@@ -48,7 +48,8 @@
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
       node1.wait_for_unit("ovsdb.service")

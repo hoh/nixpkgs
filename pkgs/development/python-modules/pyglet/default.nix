@@ -126,7 +126,8 @@ buildPythonPackage rec {
 
   nativeCheckInputs = [ pytestCheckHook ];
 
-  preCheck = # libEGL only available on Linux (despite meta.platforms on libGL)
+  preCheck =
+    # libEGL only available on Linux (despite meta.platforms on libGL)
     lib.optionalString stdenv.isLinux ''
       export PYGLET_HEADLESS=True
     '';

@@ -35,7 +35,8 @@
       };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       from html.parser import HTMLParser
       start_all()

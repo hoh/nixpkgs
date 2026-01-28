@@ -287,7 +287,8 @@ in
       };
 
       package = lib.mkPackageOption pkgs "h2o" {
-        example = # nix
+        example =
+          # nix
           ''
             pkgs.h2o.override {
               withMruby = false;

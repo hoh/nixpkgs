@@ -82,7 +82,8 @@ in
           locations."/" = {
             proxyPass = "http://127.0.0.1:${toString cfg.port}";
             proxyWebsockets = true;
-            extraConfig = # nginx
+            extraConfig =
+              # nginx
               ''
                 proxy_buffering off;
                 proxy_read_timeout 3600s;

@@ -795,7 +795,8 @@ rec {
           }
         else
           throw "system string '${lib.concatStringsSep "-" l}' with 1 component is ambiguous";
-      "2" = # We only do 2-part hacks for things Nix already supports
+      "2" =
+        # We only do 2-part hacks for things Nix already supports
         if elemAt l 1 == "cygwin" then
           mkSkeletonFromList [
             (elemAt l 0)

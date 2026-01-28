@@ -21,7 +21,8 @@
       networking.firewall.enable = true;
     };
 
-  testScript = # py
+  testScript =
+    # py
     ''
       start_all()
 

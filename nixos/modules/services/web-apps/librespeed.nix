@@ -324,7 +324,8 @@ in
             "= /servers.json".return = "200 '${builtins.toJSON cfg.frontend.servers}'";
             "/backend/" = {
               proxyPass = "http://127.0.0.1:${toString cfg.settings.listen_port}/backend/";
-              extraConfig = # nginx
+              extraConfig =
+              # nginx
               ''
                 client_max_body_size 0;
                 gzip off;

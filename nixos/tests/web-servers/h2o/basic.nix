@@ -17,7 +17,8 @@ let
 
   hello_world_rst = hostPkgs.writeTextFile {
     name = "/hello_world.rst";
-    text = # rst
+    text =
+      # rst
       ''
         ====================
         Thaiger Sprint 2025‼

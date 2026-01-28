@@ -8,7 +8,8 @@ import ./make-test-python.nix (
     };
     nodes.machine.services.sssd = {
       enable = true;
-      config = # ini
+      config =
+        # ini
         ''
           [sssd]
           services = nss, pam

@@ -25,7 +25,8 @@ in
               "${domain}" = {
                 paths = {
                   "/hello_world" = {
-                    "mruby.handler" = # ruby
+                    "mruby.handler" =
+                      # ruby
                       ''
                         Proc.new do |env|
                           [200, {'content-type' => 'text/plain'}, ["${sawatdi_chao_lok}"]]

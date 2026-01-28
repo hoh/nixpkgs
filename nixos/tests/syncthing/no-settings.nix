@@ -17,7 +17,8 @@
   };
   # Test that indeed a syncthing-init.service systemd service is not created.
   #
-  testScript = # python
+  testScript =
+    # python
     ''
       a.succeed("systemctl list-unit-files | awk '$1 == \"syncthing-init.service\" {exit 1;}'")
     '';

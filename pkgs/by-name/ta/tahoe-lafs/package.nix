@@ -48,7 +48,8 @@ python3Packages.buildPythonApplication rec {
     hatchling
   ];
 
-  nativeBuildInputs = # docs
+  nativeBuildInputs =
+  # docs
   [
     installShellFiles
     texinfo

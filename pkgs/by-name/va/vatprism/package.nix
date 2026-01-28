@@ -69,7 +69,8 @@ maven.buildMavenPackage rec {
     })
   ];
 
-  mvnHash = # OpenJFX artifacts are platform dependent
+  mvnHash =
+    # OpenJFX artifacts are platform dependent
     if (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) then
       "sha256-gerjxTj8UQEVthMO3unWPEG7SPseMt5JPPureC/wUsw="
     else

@@ -280,7 +280,8 @@ in
             "/" = {
               proxyPass = "http://127.0.0.1:${toString config.services.zammad.port}";
               root = "${config.services.zammad.package}/public/";
-              extraConfig = # nginx
+              extraConfig =
+                # nginx
                 ''
                   proxy_set_header CLIENT_IP $remote_addr;
                 '';
@@ -288,7 +289,8 @@ in
             "/cable" = {
               proxyPass = "http://127.0.0.1:${toString config.services.zammad.port}";
               proxyWebsockets = true;
-              extraConfig = # nginx
+              extraConfig =
+                # nginx
                 ''
                   proxy_set_header CLIENT_IP $remote_addr;
                 '';
@@ -296,7 +298,8 @@ in
             "/ws" = {
               proxyPass = "http://127.0.0.1:${toString config.services.zammad.websocketPort}";
               proxyWebsockets = true;
-              extraConfig = # nginx
+              extraConfig =
+                # nginx
                 ''
                   proxy_set_header CLIENT_IP $remote_addr;
                 '';

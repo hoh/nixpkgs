@@ -104,11 +104,13 @@ let
       ...
     }@prevAttrs:
     let
-      properties = # SBOM metadata.component.properties as an attrset.
+      properties =
+        # SBOM metadata.component.properties as an attrset.
         lib.attrsets.recursiveUpdate (builtins.listToAttrs sbom.metadata.component.properties)
           passthru.properties or { };
 
-      nimBin = # A mapping of Nim module file paths to names of programs.
+      nimBin =
+        # A mapping of Nim module file paths to names of programs.
         lib.attrsets.recursiveUpdate (lib.pipe properties [
           (lib.attrsets.filterAttrs (name: value: lib.strings.hasPrefix "nim:bin:" name))
           (lib.attrsets.mapAttrs' (

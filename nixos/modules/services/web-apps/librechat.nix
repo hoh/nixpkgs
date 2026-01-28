@@ -195,7 +195,8 @@ in
       ++ lib.optional cfg.enableLocalDB "mongodb.service";
       description = "Open-source app for all your AI conversations, fully customizable and compatible with any AI provider";
       environment = cfg.env;
-      script = # sh
+      script =
+        # sh
         ''
           ${exportAllCredentials cfg.credentials}
           cd ${cfg.dataDir}

@@ -9,7 +9,8 @@ let
   cfg = config.virtualisation.vmware.host;
   wrapperDir = "/run/vmware/bin"; # Perfectly fits as /usr/local/bin
   parentWrapperDir = dirOf wrapperDir;
-  vmwareWrappers = # Needed as hardcoded paths workaround
+  vmwareWrappers =
+    # Needed as hardcoded paths workaround
     let
       mkVmwareSymlink = program: ''
         ln -s "${config.security.wrapperDir}/${program}" $wrapperDir/${program}

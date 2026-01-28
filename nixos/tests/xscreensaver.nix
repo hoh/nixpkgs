@@ -72,7 +72,9 @@
       };
   };
 
-  testScript = /* python */ ''
+  testScript =
+/* python */
+    ''
     ok.wait_for_x()
     ok.wait_for_unit("xscreensaver", "alice")
     _, output_ok = ok.systemctl("status xscreensaver", "alice")

@@ -131,7 +131,8 @@ in
       };
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       with subtest("users in wheel group should have passwordless sudo"):
           machine.succeed('faketty -- su - test0 -c "sudo -u root true"')

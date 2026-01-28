@@ -25,7 +25,8 @@ in
     bar = mkNode 2;
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
 

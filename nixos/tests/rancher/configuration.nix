@@ -54,7 +54,8 @@ in
       };
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       import json
 

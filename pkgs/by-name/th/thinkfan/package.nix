@@ -23,7 +23,8 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-QqDWPOXy8E+TY5t0fFRAS8BGA7ZH90xecv5UsFfDssk=";
   };
 
-  postPatch = # fix hardcoded install path
+  postPatch =
+  # fix hardcoded install path
   ''
     substituteInPlace CMakeLists.txt \
       --replace-fail "/etc" "$out/etc"

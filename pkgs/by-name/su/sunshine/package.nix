@@ -87,7 +87,8 @@ stdenv'.mkDerivation (finalAttrs: {
     '';
   };
 
-  postPatch = # remove upstream dependency on systemd and udev
+  postPatch =
+  # remove upstream dependency on systemd and udev
   ''
     substituteInPlace cmake/packaging/linux.cmake \
       --replace-fail 'find_package(Systemd)' "" \

@@ -71,7 +71,8 @@ in
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
       server.wait_for_unit("wstunnel-server-my-server.service")

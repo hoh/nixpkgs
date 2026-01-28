@@ -86,7 +86,8 @@
       };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       with subtest("should start etcd"):
           etcd.start()

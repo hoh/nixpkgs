@@ -45,7 +45,8 @@
       };
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       newergen = machine.succeed("realpath /run/current-system/specialisation/newer-generation/bin/switch-to-configuration").rstrip()
 

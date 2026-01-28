@@ -75,7 +75,8 @@ in
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
 

@@ -114,7 +114,8 @@ in
                   boot.kernel.sysctl."net.ipv4.ip_forward" = "1";
                 };
 
-                testScript = # python
+                testScript =
+                # python
                 ''
                   with subtest("[${image_id}] image can be imported"):
                       server.succeed("incus image import ${metadata} ${root} --alias ${config.imageAlias}")

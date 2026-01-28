@@ -380,7 +380,8 @@ let
   mergeAttrsByFuncDefaultsClean = list: removeAttrs (mergeAttrsByFuncDefaults list) [ "mergeAttrBy" ];
 
   # sane defaults (same name as attr name so that inherit can be used)
-  mergeAttrBy = # { buildInputs = concatList; [...]; passthru = mergeAttr; [..]; }
+  mergeAttrBy =
+    # { buildInputs = concatList; [...]; passthru = mergeAttr; [..]; }
     listToAttrs (
       map (n: nameValuePair n concat) [
         "nativeBuildInputs"

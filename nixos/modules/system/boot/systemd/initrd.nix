@@ -635,7 +635,8 @@ in
           RemainAfterExit = true;
         };
 
-        script = # bash
+        script =
+          # bash
           ''
             set -uo pipefail
             export PATH="/bin:${
@@ -712,7 +713,8 @@ in
         serviceConfig.Type = "oneshot";
         description = "NixOS Activation";
 
-        script = # bash
+        script =
+          # bash
           ''
             set -uo pipefail
             export PATH="/bin:${cfg.package.util-linux}/bin"

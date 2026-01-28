@@ -164,7 +164,8 @@ in
         proxyPass = "http://unix:${cfg.socketPath}";
         proxyWebsockets = true;
         recommendedProxySettings = lib.mkDefault true;
-        extraConfig = # nginx
+        extraConfig =
+          # nginx
           ''
             # disable in case it was configured on a higher level
             keepalive_timeout 0;

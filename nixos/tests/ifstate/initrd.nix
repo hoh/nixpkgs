@@ -58,7 +58,8 @@ in
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
       client.wait_for_unit("network.target")

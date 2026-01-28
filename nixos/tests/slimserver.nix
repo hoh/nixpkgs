@@ -14,7 +14,8 @@
       boot.kernelModules = [ "snd-dummy" ];
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       import json
       rpc_get_player = {

@@ -1,6 +1,7 @@
 { ... }:
 {
-  _module.args.testScriptSetup = # python
+  _module.args.testScriptSetup =
+    # python
     ''
       from typing import List
       from dataclasses import dataclass

@@ -17,7 +17,8 @@ in
       };
     };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       machine.start()
       machine.wait_for_unit("rtorrent.service")

@@ -23,7 +23,8 @@
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       ${testScriptSetup}
 

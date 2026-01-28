@@ -131,7 +131,8 @@ import ./make-test-python.nix (
         };
     };
 
-    testScript = # python
+    testScript =
+      # python
       ''
         catester.start()
         caserver.wait_for_unit("step-ca.service")

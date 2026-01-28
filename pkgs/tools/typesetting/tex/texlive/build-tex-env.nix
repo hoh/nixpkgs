@@ -229,7 +229,8 @@ lib.fix (
         perl
       ];
 
-      postBuild = # generate ls-R database
+      postBuild =
+        # generate ls-R database
         ''
           perl ${tl.texlive-scripts.tex}/scripts/texlive/mktexlsr.pl --sort "$out"
         '';

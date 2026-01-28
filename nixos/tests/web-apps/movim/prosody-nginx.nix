@@ -83,7 +83,8 @@ in
       };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       server.wait_for_unit("phpfpm-movim.service")
       server.wait_for_unit("nginx.service")

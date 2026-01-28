@@ -57,7 +57,8 @@
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       start_all()
       server.wait_for_unit("pulseaudio.service")

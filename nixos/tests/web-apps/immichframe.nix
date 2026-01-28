@@ -62,7 +62,9 @@ in
       };
     };
 
-  testScript = /* python */ ''
+  testScript =
+/* python */
+    ''
     import json
     import tempfile
     from shlex import quote

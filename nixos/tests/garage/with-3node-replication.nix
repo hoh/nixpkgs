@@ -39,7 +39,8 @@ in
     };
   };
 
-  testScript = # python
+  testScript =
+    # python
     ''
       ${testScriptSetup}
 

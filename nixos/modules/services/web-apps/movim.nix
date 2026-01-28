@@ -68,7 +68,8 @@ let
       let
         appDir = "$out/share/php/${finalAttrs.pname}";
 
-        stateDirectories = # sh
+        stateDirectories =
+          # sh
           ''
             # Symlinking in our state directories
             rm -rf $out/{.env,cache} ${appDir}/{log,public/cache}
@@ -78,7 +79,8 @@ let
             ln -s ${cfg.runtimeDir}/cache ${appDir}/cache
           '';
 
-        exposeComposer = # sh
+        exposeComposer =
+          # sh
           ''
             # Expose PHP Composer for scripts
             mkdir -p $out/bin
@@ -694,7 +696,8 @@ in
           recommendedOptimisation = mkDefault true;
           recommendedProxySettings = true;
           # TODO: recommended cache options already in Nginx⁇
-          appendHttpConfig = # nginx
+          appendHttpConfig =
+            # nginx
             ''
               fastcgi_cache_path /tmp/nginx_cache levels=1:2 keys_zone=nginx_cache:100m inactive=60m;
               fastcgi_cache_key "$scheme$request_method$host$request_uri";
@@ -706,7 +709,8 @@ in
               locations = {
                 "/favicon.ico" = {
                   priority = 100;
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       access_log off;
                       log_not_found off;
@@ -714,7 +718,8 @@ in
                 };
                 "/robots.txt" = {
                   priority = 100;
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       access_log off;
                       log_not_found off;
@@ -722,7 +727,8 @@ in
                 };
                 "~ /\\.(?!well-known).*" = {
                   priority = 210;
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       deny all;
                     '';
@@ -731,7 +737,8 @@ in
                 "/picture" = {
                   priority = 400;
                   tryFiles = "$uri $uri/ /index.php$is_args$args";
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       set $no_cache 0; # Enable cache only there
                     '';
@@ -739,7 +746,8 @@ in
                 "/" = {
                   priority = 490;
                   tryFiles = "$uri $uri/ /index.php$is_args$args";
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       add_header Content-Security-Policy "${movimCSP}";
                       set $no_cache 1;
@@ -748,7 +756,8 @@ in
                 "~ \\.php$" = {
                   priority = 500;
                   tryFiles = "$uri =404";
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       include ${config.services.nginx.package}/conf/fastcgi.conf;
                       add_header X-Cache $upstream_cache_status;
@@ -767,14 +776,16 @@ in
                   proxyPass = "http://${cfg.settings.DAEMON_INTERFACE}:${toString cfg.port}/";
                   proxyWebsockets = true;
                   recommendedProxySettings = true;
-                  extraConfig = # nginx
+                  extraConfig =
+                    # nginx
                     ''
                       proxy_set_header X-Forwarded-Proto $scheme;
                       proxy_redirect off;
                     '';
                 };
               };
-              extraConfig = # nginx
+              extraConfig =
+                # nginx
                 ''
                   index index.php;
                 '';
@@ -855,7 +866,8 @@ in
           LoadCredential = "env-secrets:${cfg.secretFile}";
         };
 
-        script = # sh
+        script =
+        # sh
         ''
           # Env vars
           rm -f ${cfg.dataDir}/.env

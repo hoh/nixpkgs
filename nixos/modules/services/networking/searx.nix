@@ -264,7 +264,8 @@ in
             recommendedProxySettings = true;
             recommendedUwsgiSettings = true;
             uwsgiPass = "unix:${config.services.uwsgi.instance.vassals.searx.socket}";
-            extraConfig = # nginx
+            extraConfig =
+              # nginx
               ''
                 uwsgi_param  HTTP_HOST             $host;
                 uwsgi_param  HTTP_CONNECTION       $http_connection;
