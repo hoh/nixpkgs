@@ -45,6 +45,8 @@ buildPythonPackage rec {
     "test_event"
     # Broke with TatSu 5.7:
     "test_many_lines"
+    # RecursionError via colorama while rendering parser errors
+    "test_gehol"
     # AssertionError: 'Europe/Berlin' not found in "tzfile('Atlantic/Jan_Mayen')"
     "test_timezone_not_dropped"
     # tatsu PEG parser hits recursion limit on the bundled gehol/BA1.ics fixture
