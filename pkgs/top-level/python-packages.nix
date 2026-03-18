@@ -9827,6 +9827,8 @@ self: super: with self; {
 
   mediafire-dl = callPackage ../development/python-modules/mediafire-dl { };
 
+  mediapipe = callPackage ../development/python-modules/mediapipe { };
+
   mediapy = callPackage ../development/python-modules/mediapy { };
 
   mediawiki-langcodes = callPackage ../development/python-modules/mediawiki-langcodes { };
