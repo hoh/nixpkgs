@@ -29,13 +29,28 @@
   tqdm,
   transformers,
   trl,
-  tyro,
   typing-extensions,
 
   # tests
   cudaPackages,
   python,
 }:
+
+let
+  basePythonPackages = python.pkgs;
+  gpuPython =
+    let
+      self = python.override {
+        packageOverrides =
+          final: prev: {
+            torch = basePythonPackages.torchWithCuda;
+            triton = basePythonPackages.triton-cuda;
+          };
+        inherit self;
+      };
+    in
+    self;
+in
 
 buildPythonPackage (finalAttrs: {
   pname = "unsloth-zoo";
@@ -49,6 +64,18 @@ buildPythonPackage (finalAttrs: {
     hash = "sha256-jJ58d2+5lEALEaASELZtQkY2YxNWaLrfLvOCUGnwrh4=";
   };
 
+  prePatch = ''
+    # The PyPI sdist ships these files with CRLF line endings, so normalize
+    # them before applying the local source edits below.
+    sed -i 's/\r$//' \
+      unsloth_zoo/__init__.py \
+      unsloth_zoo/device_type.py
+
+    # Avoid a circular dependency during import in nixpkgs: `unsloth-zoo`
+    # should remain importable on its own even though `unsloth` depends on it.
+    sed -i '/if find_spec("unsloth") is None:/,+1d' unsloth_zoo/__init__.py
+    sed -i '/if not ("UNSLOTH_IS_PRESENT" in os.environ):/,+1d' unsloth_zoo/__init__.py
+  '';
   postPatch = ''
     substituteInPlace pyproject.toml \
       --replace-fail \
@@ -65,9 +92,9 @@ buildPythonPackage (finalAttrs: {
     "transformers"
   ];
 
-  patches = [
-    # Avoid circular dependency in Nix, since `unsloth` depends on `unsloth-zoo`.
-    ./dont-require-unsloth.patch
+  pythonRemoveDeps = [
+    "tyro"
+    "wheel"
   ];
 
   build-system = [
@@ -97,7 +124,6 @@ buildPythonPackage (finalAttrs: {
     tqdm
     transformers
     trl
-    tyro
     typing-extensions
   ];
 
@@ -109,7 +135,7 @@ buildPythonPackage (finalAttrs: {
 
   # Cover the import path on GPU-enabled runners instead of pure builders.
   passthru.gpuCheck =
-    (cudaPackages.writeGpuTestPython.override { python3Packages = python.pkgs; }
+    (cudaPackages.writeGpuTestPython.override { python3Packages = gpuPython.pkgs; }
       {
         libraries = ps: [ ps.unsloth-zoo ];
       }
