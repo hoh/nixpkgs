@@ -8434,6 +8434,8 @@ self: super: with self; {
 
   kitchen = callPackage ../development/python-modules/kitchen { };
 
+  kittentts = callPackage ../development/python-modules/kittentts { };
+
   kivy = callPackage ../development/python-modules/kivy { };
 
   kivy-garden = callPackage ../development/python-modules/kivy-garden { };
