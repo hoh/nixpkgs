@@ -4,6 +4,7 @@
   fetchPypi,
 
   # build-system
+  callPackage,
   setuptools,
   setuptools-scm,
 
@@ -15,7 +16,6 @@
   torch,
   unsloth-zoo,
   xformers,
-  tyro,
   transformers,
   datasets,
   sentencepiece,
@@ -30,27 +30,14 @@
   torchvision,
 
   # tests
+  fetchFromHuggingFace,
   fetchFromGitHub,
   cudaPackages,
   python,
   gcc,
+  runCommand,
+  writableTmpDirAsHomeHook,
 }:
-
-let
-  # Test files are absent from the PyPI package, so we fetch them separately.
-  testSrc = fetchFromGitHub {
-    owner = "unslothai";
-    repo = "unsloth";
-    rev = "cb78f0e83dc2d61fb1571b6e904eb2f064510d63";
-    hash = "sha256-0oR3m8jnjSdfjH+NslW6SsVj+0cQ4VUhKXZ38U/VBy0=";
-    # Keep only the tests directory, use the PyPI package for everything else.
-    postFetch = ''
-      mv $out/tests $TMPDIR/tests
-      rm -rf $out/*
-      mv $TMPDIR/tests $out/tests
-    '';
-  };
-in
 
 buildPythonPackage (finalAttrs: {
   pname = "unsloth";
@@ -88,6 +75,35 @@ buildPythonPackage (finalAttrs: {
     sed -i '/^\[project\.scripts\]/,/^$/d' pyproject.toml
   '';
 
+  prePatch = ''
+    sed -i '/^import warnings, subprocess, inspect, psutil, os, math$/a \
+try:\
+    from transformers.utils import auto_docstring\
+except Exception:\
+    def auto_docstring(*args, **kwargs):\
+        def _identity(func):\
+            return func\
+\
+        return _identity\
+try:\
+    from huggingface_hub.dataclasses import strict\
+except Exception:\
+    def strict(func):\
+        return func\
+try:\
+    from transformers.utils.type_validators import interval\
+except Exception:\
+    def interval(*args, **kwargs):\
+        def _inner(*inner_args, **inner_kwargs):\
+            if "default" in inner_kwargs:\
+                return inner_kwargs["default"]\
+            if inner_args:\
+                return inner_args[0]\
+            return None\
+\
+        return _inner\
+' unsloth/models/_utils.py
+  '';
   build-system = [
     setuptools
     setuptools-scm
@@ -101,7 +117,6 @@ buildPythonPackage (finalAttrs: {
     torch
     unsloth-zoo
     xformers
-    tyro
     transformers
     datasets
     sentencepiece
@@ -121,6 +136,7 @@ buildPythonPackage (finalAttrs: {
   pythonRelaxDeps = [
     "datasets"
     "protobuf"
+    "trl"
     "transformers"
     "torch"
   ];
@@ -143,36 +159,18 @@ buildPythonPackage (finalAttrs: {
   # NotImplementedError: Unsloth: No NVIDIA GPU found? Unsloth currently only supports GPUs!
   dontUsePythonImportsCheck = true;
 
-  passthru.tests = rec {
-    cuda =
-      # FIXME: Replace python3.pkgs with python3Packages once possible, as to unbeak splicing.
-      # Cf. https://github.com/NixOS/nixpkgs/pull/394838#issuecomment-3319287038
-      cudaPackages.writeGpuTestPython.override { python3Packages = python.pkgs; }
-        {
-          libraries = ps: [
-            ps.unsloth
-            ps.unsloth-zoo
-          ];
-          # In-derivation test would require fetching the model from hugging-face which will not be trivial.
-          gpuCheckArgs.meta.broken = true;
-        }
-        # Triton JIT requires a C compiler at runtime and imports files from the test directory.
-        ''
-          import os, sys, runpy
-
-          os.environ["CC"]  = "${lib.getExe' gcc "cc"}";
-          os.environ["CXX"] = "${lib.getExe' gcc "cxx"}";
-
-          sys.path.insert(0, "${testSrc}")
-
-          # Execute the test file from the Nix store at runtime (no eval-time IFD).
-          runpy.run_path(
-              "${testSrc}/tests/qlora/test_unsloth_qlora_train_and_merge.py",
-              run_name="__main__"
-          )
-        '';
-
-    qlora-train-and-merge = cuda;
+  passthru.tests = callPackage ./tests.nix {
+    unsloth = finalAttrs.finalPackage;
+    inherit
+      cudaPackages
+      fetchFromGitHub
+      fetchFromHuggingFace
+      gcc
+      python
+      runCommand
+      unsloth-zoo
+      writableTmpDirAsHomeHook
+      ;
   };
 
   meta = {
