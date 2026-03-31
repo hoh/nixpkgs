@@ -58,6 +58,7 @@ buildPythonPackage (finalAttrs: {
     pillow
     pydantic
     pydantic-extra-types
+    pycountry
     requests
     tiktoken
     typing-extensions
