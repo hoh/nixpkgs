@@ -856,6 +856,8 @@ self: super: with self; {
 
   apache-beam = callPackage ../development/python-modules/apache-beam { };
 
+  apache-burr = callPackage ../development/python-modules/apache-burr { };
+
   apache-tvm-ffi = callPackage ../development/python-modules/apache-tvm-ffi { };
 
   apcaccess = callPackage ../development/python-modules/apcaccess { };
@@ -5442,6 +5444,8 @@ self: super: with self; {
   fastapi-pagination = callPackage ../development/python-modules/fastapi-pagination { };
 
   fastapi-sso = callPackage ../development/python-modules/fastapi-sso { };
+
+  fastapi-utils = callPackage ../development/python-modules/fastapi-utils { };
 
   fastapi-versionizer = callPackage ../development/python-modules/fastapi-versionizer { };
 
