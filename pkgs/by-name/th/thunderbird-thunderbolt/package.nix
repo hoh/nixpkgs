@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  nixosTests,
   rustPlatform,
 
   bun,
@@ -17,6 +18,7 @@
 
   bypassWaitlist ? false,
   e2eeEnabled ? true,
+  skipOnboarding ? false,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
@@ -147,6 +149,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   env = {
     VITE_BYPASS_WAITLIST = lib.boolToString bypassWaitlist;
     VITE_E2EE_ENABLED = lib.boolToString e2eeEnabled;
+    VITE_SKIP_ONBOARDING = lib.boolToString skipOnboarding;
   };
 
   tauriConf = builtins.toJSON {
@@ -168,6 +171,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   '';
 
   doCheck = false;
+
+  passthru.tests.integration = nixosTests.thunderbird-thunderbolt;
 
   __structuredAttrs = true;
 
