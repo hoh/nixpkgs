@@ -65,7 +65,7 @@ buildPythonPackage rec {
     writableTmpDirAsHomeHook
   ];
 
-  pytestFlagsArray = [ "${./test_kittentts.py}" ];
+  pytestFlags = [ "${./test_kittentts.py}" ];
 
   pythonImportsCheck = [
     "kittentts"
