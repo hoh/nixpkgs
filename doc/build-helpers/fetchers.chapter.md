@@ -876,6 +876,86 @@ However, `fetchFromGitHub` will automatically switch to using `fetchgit` in any 
 
 When `fetchgit` is used, refer to the `fetchgit` section for documentation of its available options.
 
+## `fetchFromHuggingFace` {#fetchfromhuggingface}
+
+`fetchFromHuggingFace` fetches repositories from Hugging Face Hub. It expects
+`repoId`, exactly one of `rev` or `tag`, and `hash`.
+
+`repoId` must be in the form `repo` or `owner/repo` using path components made
+from letters, digits, `.`, `_`, and `-`, so repositories such as `gpt2` work as
+well.
+For callers that already have the parts split out, `owner` and `repo` can be
+used instead of `repoId`.
+
+The optional `repoType` argument selects which Hugging Face namespace to use:
+
+- `"model"` (default) fetches from `https://huggingface.co/<repo-id>`
+- `"dataset"` fetches from `https://huggingface.co/datasets/<repo-id>`
+- `"space"` fetches from `https://huggingface.co/spaces/<repo-id>`
+
+To use a different Hugging Face Hub instance, use `domain`
+(defaults to `"huggingface.co"`).
+
+Unlike `fetchFromGitHub` and `fetchFromGitLab`, `fetchFromHuggingFace` always
+uses `fetchgit`, because Hugging Face repositories are Git repositories and
+model weights are commonly stored in Git LFS. As a result, `fetchLFS` defaults
+to `true`.
+
+Since it is a thin wrapper around `fetchgit`, options such as
+`fetchSubmodules`, `deepClone`, `leaveDotGit`, `sparseCheckout`, and `rootDir`
+are supported as well.
+
+## `fetchFromHuggingFaceGGUF` {#fetchfromhuggingfacegguf}
+
+`fetchFromHuggingFaceGGUF` fetches one `.gguf` file from a Hugging Face model
+repository. The usual form is `modelRef = "repoId:quant"`, exactly one of
+`rev` or `tag`, and `hash`.
+
+`modelRef` must be in the form `repoId:quant`, for example
+`"unsloth/gemma-4-E4B-it-GGUF:Q8_0"`. The fetcher selects the single `.gguf`
+file whose basename ends with the quant token before `.gguf`, using `-`, `.`,
+or `_` as the separator. Evaluation succeeds only when the quant is valid, and
+the build fails if the quant matches zero or multiple files.
+
+For an exact file selection, use `repoId` or `owner` and `repo` with `file`
+instead of `modelRef`. `file` is the exact relative path to the `.gguf` file
+inside the repository. Empty path components, `.` components, and `..`
+components are rejected.
+
+The output is the selected `.gguf` file. The fetcher avoids downloading all LFS
+objects by skipping LFS smudging during checkout and pulling only the selected
+file. `rootDir` is not supported; use `file` to select a file from a
+subdirectory.
+
+If `mmprojHash` is provided, `fetchFromHuggingFaceGGUF` also fetches
+`mmprojFile`, which defaults to `"mmproj-F16.gguf"`. In that mode the output is
+a directory containing `model.gguf` and `mmproj.gguf` symlinks. The individual
+single-file derivations are also available as `model` and `mmproj` attributes,
+with `modelPath` and `mmprojPath` pointing at the stable paths in the combined
+output directory.
+
+```nix
+fetchFromHuggingFaceGGUF {
+  modelRef = "owner/model-GGUF:Q4_K_M";
+  rev = "0123456789abcdef0123456789abcdef01234567";
+  hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  mmprojHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+}
+```
+
+## `runWithHuggingFaceCache` {#runwithhuggingfacecache}
+
+`runWithHuggingFaceCache` runs a command with a Hugging Face cache populated
+from Nix-fetched repositories. It is useful for tests or build steps that call
+libraries such as `huggingface_hub` or `transformers` with repository IDs while
+still requiring all model files to come from fixed-output derivations.
+
+Each entry in `repositories` may be a `fetchFromHuggingFace` result or an
+attribute set with `src`, `repoId`, `rev`, and optionally `repoType` and `ref`.
+The helper sets `HF_HOME`, `HF_DATASETS_OFFLINE`, `HF_HUB_OFFLINE`, and
+`TRANSFORMERS_OFFLINE`; pass additional shell environment variables through
+`extraEnv`.
+
 ## `fetchFromGitLab` {#fetchfromgitlab}
 
 This is used with GitLab repositories. It behaves similarly to `fetchFromGitHub`, and expects `owner`, `repo`, `rev`, and `hash`.

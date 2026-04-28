@@ -1971,6 +1971,15 @@
   "fetchfromgithub": [
     "index.html#fetchfromgithub"
   ],
+  "fetchfromhuggingface": [
+    "index.html#fetchfromhuggingface"
+  ],
+  "fetchfromhuggingfacegguf": [
+    "index.html#fetchfromhuggingfacegguf"
+  ],
+  "runwithhuggingfacecache": [
+    "index.html#runwithhuggingfacecache"
+  ],
   "fetchfromgitlab": [
     "index.html#fetchfromgitlab"
   ],

@@ -711,6 +711,10 @@ with pkgs;
 
   fetchFromGitHub = callPackage ../build-support/fetchgithub { };
 
+  fetchFromHuggingFace = callPackage ../build-support/fetchhuggingface { };
+  fetchFromHuggingFaceGGUF = callPackage ../build-support/fetchhuggingface/gguf.nix { };
+  runWithHuggingFaceCache = callPackage ../build-support/fetchhuggingface/run-with-cache.nix { };
+
   fetchFromBitbucket = callPackage ../build-support/fetchbitbucket { };
 
   fetchFromSavannah = callPackage ../build-support/fetchsavannah { };
