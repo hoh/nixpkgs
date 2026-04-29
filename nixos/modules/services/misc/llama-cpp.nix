@@ -9,6 +9,45 @@
 let
   cfg = config.services.llama-cpp;
 
+  hasExtraFlag =
+    flags:
+    builtins.any (
+      extraFlag: builtins.any (flag: extraFlag == flag || lib.hasPrefix "${flag}=" extraFlag) flags
+    ) cfg.extraFlags;
+
+  modelPath = cfg.model.modelPath or cfg.model;
+
+  alias =
+    if cfg.alias != null then
+      cfg.alias
+    else if
+      hasExtraFlag [
+        "-a"
+        "--alias"
+      ]
+    then
+      null
+    else
+      cfg.model.modelRef or null;
+
+  mmproj =
+    if cfg.mmproj != null then
+      cfg.mmproj
+    else if
+      hasExtraFlag [
+        "-mm"
+        "-mmu"
+        "--mmproj"
+        "--mmproj-auto"
+        "--mmproj-url"
+        "--no-mmproj"
+        "--no-mmproj-auto"
+      ]
+    then
+      null
+    else
+      cfg.model.mmprojPath or null;
+
   modelsPresetFile =
     if cfg.modelsPreset != null then
       pkgs.writeText "llama-models.ini" (lib.generators.toINI { } cfg.modelsPreset)
@@ -27,7 +66,39 @@ in
       model = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         example = "/models/mistral-instruct-7b/ggml-model-q4_0.gguf";
-        description = "Model path.";
+        description = ''
+          Model path.
+
+          If this is a `fetchFromHuggingFaceGGUF` result, its `modelRef`
+          attribute is used automatically as the llama-server alias. Its
+          `modelPath` and `mmprojPath` attributes are also used automatically
+          when available.
+        '';
+        default = null;
+      };
+
+      mmproj = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        example = "/models/mistral-instruct-7b/mmproj-F16.gguf";
+        description = ''
+          Multimodal projector path passed to llama-server with
+          `--mmproj`.
+
+          If unset, this defaults to the `mmprojPath` attribute of
+          {option}`services.llama-cpp.model` when available.
+        '';
+        default = null;
+      };
+
+      alias = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        example = "unsloth/Qwen3.6-27B-GGUF:UD-Q4_K_XL";
+        description = ''
+          Model alias passed to llama-server with `--alias`.
+
+          If unset, this defaults to the `modelRef` attribute of
+          {option}`services.llama-cpp.model` when available.
+        '';
         default = null;
       };
 
@@ -43,7 +114,7 @@ in
         default = null;
         description = ''
           Models preset configuration as a Nix attribute set.
-          This is converted to an INI file and passed to llama-server via --model-preset.
+          This is converted to an INI file and passed to llama-server via `--models-preset`.
           See llama-server documentation for available options.
         '';
         example = lib.literalExpression ''
@@ -66,7 +137,7 @@ in
 
       extraFlags = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        description = "Extra flags passed to llama-cpp-server.";
+        description = "Extra flags passed to llama-server.";
         example = [
           "-c"
           "4096"
@@ -123,7 +194,15 @@ in
             ]
             ++ lib.optionals (cfg.model != null) [
               "-m"
-              cfg.model
+              modelPath
+            ]
+            ++ lib.optionals (mmproj != null) [
+              "--mmproj"
+              mmproj
+            ]
+            ++ lib.optionals (alias != null) [
+              "--alias"
+              alias
             ]
             ++ lib.optionals (cfg.modelsDir != null) [
               "--models-dir"
