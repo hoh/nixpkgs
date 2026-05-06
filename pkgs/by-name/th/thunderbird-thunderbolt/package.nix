@@ -23,13 +23,13 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "thunderbird-thunderbolt";
-  version = "0.1.91";
+  version = "0.1.92";
 
   src = fetchFromGitHub {
     owner = "Thunderbird";
     repo = "thunderbolt";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-XR89pgt1UQKy2T3gqjgu0zpahx7nn5Z0+g0i4zAMCpE=";
+    hash = "sha256-12QT+1v4ptEsNFg3IS7x6ldM9E26K8Ix+xYbC/hSncI=";
   };
 
   cargoRoot = "src-tauri";
@@ -80,7 +80,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
     outputHash =
       {
-        x86_64-linux = "sha256-kX4obwPAS+Qxv0Kvx5MjJmuqApr8ZDhWI0VQSR3duhw=";
+        x86_64-linux = "sha256-riO66O8oI1fFsmBKVlEqImCvEShenFST0EKUp1rhdls=";
       }
       .${stdenv.hostPlatform.system}
         or (throw "${finalAttrs.pname}: platform ${stdenv.hostPlatform.system} is not packaged yet.");
@@ -113,10 +113,15 @@ rustPlatform.buildRustPackage (finalAttrs: {
     substituteInPlace package.json \
       --replace-fail '"prepare": "husky",' '"prepare": "true",'
 
+    # The safari-tauri PowerSync config references worker URLs that are not
+    # served by the packaged Linux Tauri app.
+    substituteInPlace src/db/powersync/database.ts \
+      --replace-fail "return 'safari-tauri'" "return 'default'"
+
     substituteInPlace src-tauri/tauri.conf.json \
       --replace-fail \
         "http://localhost:8000 http://localhost:11434" \
-        "http://localhost:8000 http://localhost:11434 http://localhost:8080 http://127.0.0.1:8080 http://forge.vpn:8080"
+        "http://localhost:8000 http://localhost:11434 http://localhost:8080 http://127.0.0.1:8080"
 
     substituteInPlace src-tauri/capabilities/default.json \
       --replace-fail \
@@ -127,10 +132,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
           "url": "http://localhost:8080"
         },
         {
-          "url": "http://127.0.0.1:8080"
-        },
-        {
-          "url": "http://forge.vpn:8080"'
+          "url": "http://127.0.0.1:8080"'
   '';
 
   configurePhase = ''
