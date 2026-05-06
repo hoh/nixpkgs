@@ -1686,7 +1686,7 @@ in
   test-containers-bittorrent = runTest ./test-containers-bittorrent.nix;
   thanos = runTest ./thanos.nix;
   thelounge = handleTest ./thelounge.nix { };
-  thunderbird-thunderbolt = runTest ./thunderbird-thunderbolt.nix;
+  thunderbird-thunderbolt = runTestOn [ "x86_64-linux" ] ./thunderbird-thunderbolt.nix;
   tiddlywiki = runTest ./tiddlywiki.nix;
   tigervnc = handleTest ./tigervnc.nix { };
   tika = runTest ./tika.nix;
