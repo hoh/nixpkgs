@@ -23,13 +23,13 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "thunderbird-thunderbolt";
-  version = "0.1.92";
+  version = "0.1.96";
 
   src = fetchFromGitHub {
     owner = "Thunderbird";
     repo = "thunderbolt";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-12QT+1v4ptEsNFg3IS7x6ldM9E26K8Ix+xYbC/hSncI=";
+    hash = "sha256-ViZaMr+7eoeEaXntA+g4t3eY85o3rPQ5w7cRWvJOuUg=";
   };
 
   cargoRoot = "src-tauri";
@@ -80,7 +80,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
     outputHash =
       {
-        x86_64-linux = "sha256-riO66O8oI1fFsmBKVlEqImCvEShenFST0EKUp1rhdls=";
+        x86_64-linux = "sha256-AcogO4mQsM9HBjfhZdv3NcqRkrDL+iJrfnKjuy1g+Fk=";
       }
       .${stdenv.hostPlatform.system}
         or (throw "${finalAttrs.pname}: platform ${stdenv.hostPlatform.system} is not packaged yet.");
