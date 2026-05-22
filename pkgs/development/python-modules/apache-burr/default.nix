@@ -2,7 +2,6 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  python,
   pythonOlder,
 
   # build-system
@@ -13,13 +12,10 @@
   click,
   fastapi,
   fastapi-utils,
-  jinja2,
   loguru,
-  openai,
   pydantic,
   pydantic-settings,
   requests,
-  typing-inspect,
   uvicorn,
 
   # optional-dependencies
@@ -49,8 +45,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "apache";
     repo = "burr";
-    tag = "v${version}";
-    hash = "sha256-1hz84rzNx0UDo8F6RR9lACeRKNjyad6OgADXbcWe1zE=";
+    tag = "v${version}-incubating";
+    hash = "sha256-d5rDTMGHfpydt1F8zC+L4qGwccZ0v8NKjbPG4gHZMBk=";
   };
 
   build-system = [
@@ -58,55 +54,33 @@ buildPythonPackage rec {
   ];
 
   # Upstream's CLI/server paths need Nix-specific fixes:
-  # - the CLI shells out to uvicorn, so run it through the wrapped interpreter
-  #   and forward sys.path for the child process;
-  # - the source tarball contains the React UI sources, but the Python build
-  #   does not produce burr/tracking/server/build/static, so only serve those
-  #   assets when they are present.
+  # - the CLI shells out to uvicorn, so forward sys.path for the child process;
+  # - the Python build does not include the React UI or bundled demo routes.
   postPatch = ''
     substituteInPlace burr/tracking/server/run.py \
       --replace-fail 'SERVE_STATIC = os.getenv("BURR_SERVE_STATIC", "true").lower() == "true"' \
-                     $'SERVE_STATIC = (\n    os.getenv("BURR_SERVE_STATIC", "true").lower() == "true"\n    and files("burr").joinpath("tracking/server/build/static").is_dir()\n)'
-    substituteInPlace burr/cli/__main__.py \
-      --replace-fail 'cmd = f"uvicorn burr.tracking.server.run:app --port {port} --host {host}"' \
-                     'cmd = f"{sys.executable} -m uvicorn burr.tracking.server.run:app --port {port} --host {host}"'
+                     'SERVE_STATIC = os.getenv("BURR_SERVE_STATIC", "false").lower() == "true"' \
+      --replace-fail $'    # dynamic importing due to the dashes (which make reading the examples on github easier)\n    email_assistant = importlib.import_module("burr.examples.email-assistant.server")\n    chatbot = importlib.import_module("burr.examples.multi-modal-chatbot.server")\n    streaming_chatbot = importlib.import_module("burr.examples.streaming-fastapi.server")\n    deep_researcher = importlib.import_module("burr.examples.deep-researcher.server")\n    counter = importlib.import_module("burr.examples.hello-world-counter.server")\n' \
+                     "" \
+      --replace-fail $'    # Examples -- todo -- put them behind `if` statements\n    ui_app.include_router(chatbot.router, prefix="/api/v0/chatbot")\n    ui_app.include_router(email_assistant.router, prefix="/api/v0/email_assistant")\n    ui_app.include_router(streaming_chatbot.router, prefix="/api/v0/streaming_chatbot")\n    ui_app.include_router(deep_researcher.router, prefix="/api/v0/deep_researcher")\n    ui_app.include_router(counter.router, prefix="/api/v0/counter")\n' \
+                     ""
     substituteInPlace burr/cli/__main__.py \
       --replace-fail '"BURR_BACKEND_IMPL": BACKEND_MODULES[backend],' \
                      $'"BURR_BACKEND_IMPL": BACKEND_MODULES[backend],\n        "PYTHONPATH": os.pathsep.join(sys.path),'
   '';
 
-  # The CLI imports the tracking server, which imports bundled demo routers at
-  # startup. These dependencies mirror upstream's tracking-server extra.
+  # Keep the default package usable for the CLI and local tracking server.
   dependencies = [
     aiofiles
     click
     fastapi
     fastapi-utils
-    jinja2
     loguru
-    openai
     pydantic
     pydantic-settings
     requests
-    typing-inspect
     uvicorn
   ];
-
-  # Upstream imports the in-app examples as burr.examples.*, but flit does not
-  # install the top-level examples package. Install only the server-imported
-  # modules here to avoid pulling in unrelated example entrypoints.
-  postInstall = ''
-    install -D examples/__init__.py "$out/${python.sitePackages}/examples/__init__.py"
-    for example in email-assistant multi-modal-chatbot streaming-fastapi deep-researcher; do
-      mkdir -p "$out/${python.sitePackages}/examples/$example"
-      for file in __init__.py application.py server.py prompts.py utils.py; do
-        if [ -e "examples/$example/$file" ]; then
-          cp "examples/$example/$file" "$out/${python.sitePackages}/examples/$example/"
-        fi
-      done
-    done
-    ln -s ../examples "$out/${python.sitePackages}/burr/examples"
-  '';
 
   optional-dependencies = {
     aiosqlite = [
@@ -164,7 +138,7 @@ buildPythonPackage rec {
   # The pydantic check dependency chain is no longer supported on Python 3.11.
   doCheck = !pythonOlder "3.12";
 
-  pytestFlagsArray = [
+  pytestFlags = [
     "tests/common"
     "tests/core"
     "tests/tracking"
@@ -198,7 +172,7 @@ buildPythonPackage rec {
   meta = {
     description = "State machine framework for building AI applications";
     homepage = "https://github.com/apache/burr";
-    changelog = "https://github.com/apache/burr/releases/tag/v${version}";
+    changelog = "https://github.com/apache/burr/releases/tag/v${version}-incubating";
     license = lib.licenses.asl20;
     mainProgram = "burr";
     maintainers = with lib.maintainers; [ hoh ];
