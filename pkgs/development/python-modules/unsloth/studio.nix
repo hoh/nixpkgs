@@ -6,6 +6,7 @@
 
   # dependencies
   addict,
+  cryptography,
   datasets,
   data-designer,
   ddgs,
@@ -17,6 +18,7 @@
   julius,
   kernels,
   llama-cpp,
+  mammoth,
   matplotlib,
   nest-asyncio,
   numpy,
@@ -26,12 +28,14 @@
   pydantic,
   pyjwt,
   python-multipart,
+  pymupdf4llm,
   pyyaml,
   sentence-transformers,
   soundfile,
   starlette,
   structlog,
   torch,
+  torchaudio,
   torch-c-dlpack-ext,
   torchcodec,
   trl,
@@ -275,6 +279,22 @@ buildPythonPackage (finalAttrs: {
 
     cp -r studio "$site/"
 
+    cp -r \
+      studio/backend/plugins/data-designer-unstructured-seed/src/data_designer_unstructured_seed \
+      "$site/"
+    plugin_dist="$site/data_designer_unstructured_seed-0.1.0.dist-info"
+    install -d "$plugin_dist"
+    cat > "$plugin_dist/METADATA" <<EOF
+    Metadata-Version: 2.1
+    Name: data-designer-unstructured-seed
+    Version: 0.1.0
+    EOF
+    cat > "$plugin_dist/entry_points.txt" <<EOF
+    [data_designer.plugins]
+    unstructured = data_designer_unstructured_seed.plugin:unstructured_seed_plugin
+    EOF
+    touch "$plugin_dist/RECORD"
+
     install -Dm644 COPYING "$out/share/licenses/${finalAttrs.pname}/COPYING"
     install -Dm644 studio/LICENSE.AGPL-3.0 "$out/share/licenses/${finalAttrs.pname}/LICENSE.AGPL-3.0"
 
@@ -296,6 +316,7 @@ buildPythonPackage (finalAttrs: {
 
   dependencies = [
     addict
+    cryptography
     datasets
     data-designer
     ddgs
@@ -306,6 +327,7 @@ buildPythonPackage (finalAttrs: {
     huggingface-hub
     julius
     kernels
+    mammoth
     matplotlib
     nest-asyncio
     numpy
@@ -315,12 +337,14 @@ buildPythonPackage (finalAttrs: {
     pydantic
     pyjwt
     python-multipart
+    pymupdf4llm
     pyyaml
     sentence-transformers
     soundfile
     starlette
     structlog
     torch
+    torchaudio
     torch-c-dlpack-ext
     torchcodec
     trl

@@ -30,6 +30,82 @@ in
     touch $out
   '';
 
+  audio-base64-runtime =
+    runCommand "unsloth-studio-audio-base64-runtime"
+      {
+        nativeBuildInputs = [
+          python
+          unsloth-studio
+          writableTmpDirAsHomeHook
+        ];
+      }
+      ''
+        python - <<'PY'
+        import base64
+        import io
+        import wave
+
+        import studio.backend.run  # Adds studio/backend for upstream absolute imports.
+        from routes.inference import _decode_audio_base64
+
+        buffer = io.BytesIO()
+        with wave.open(buffer, "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(16000)
+            wav.writeframes(bytes(3200))
+
+        audio = _decode_audio_base64(base64.b64encode(buffer.getvalue()).decode())
+
+        assert audio.shape == (1600,), audio.shape
+        PY
+
+        touch $out
+      '';
+
+  unstructured-seed-runtime =
+    runCommand "unsloth-studio-unstructured-seed-runtime"
+      {
+        nativeBuildInputs = [
+          python
+          unsloth-studio
+          writableTmpDirAsHomeHook
+        ];
+      }
+      ''
+        python - <<'PY'
+        from pathlib import Path
+
+        import studio.backend.run  # Adds studio/backend for upstream absolute imports.
+        import data_designer_unstructured_seed
+        import mammoth
+        import pymupdf4llm
+        from data_designer.plugins.plugin import PluginType
+        from data_designer.plugins.registry import PluginRegistry
+        from routes.data_recipe.seed import _read_preview_rows_from_unstructured_file
+
+        plugin_names = PluginRegistry().get_plugin_names(PluginType.SEED_READER)
+        assert "unstructured" in plugin_names, plugin_names
+
+        source = Path("seed.txt")
+        source.write_text("First paragraph.\n\nSecond paragraph.", encoding = "utf-8")
+
+        rows = _read_preview_rows_from_unstructured_file(
+            path = source,
+            preview_size = 2,
+            chunk_size = 1200,
+            chunk_overlap = 0,
+        )
+
+        assert rows == [{"chunk_text": "First paragraph.\n\nSecond paragraph."}], rows
+        assert data_designer_unstructured_seed is not None
+        assert mammoth is not None
+        assert pymupdf4llm is not None
+        PY
+
+        touch $out
+      '';
+
   data-recipe-runtime =
     runCommand "unsloth-studio-data-recipe-runtime"
       {
