@@ -53,6 +53,9 @@
 }:
 
 let
+  # The sdist includes prebuilt frontend assets that reference bundled Hellix
+  # font files without a separate license marker. Remove both the files and the
+  # CSS references so the UI falls back to the other packaged font stack.
   removeHellixFonts = ''
     from pathlib import Path
     import re
@@ -69,6 +72,10 @@ let
         css.write_text(text)
   '';
 
+  # Upstream Studio switches transformers versions by installing packages into
+  # mutable per-user venv directories at runtime. Nix packages must be immutable
+  # and offline, so keep upstream's model-tier detection but make the install
+  # hooks validate the Nix-provided transformers instead of invoking pip/uv.
   patchTransformersRuntimeInstaller = ''
     from pathlib import Path
     import re
@@ -170,6 +177,10 @@ buildPythonPackage (finalAttrs: {
       "studio/frontend/dist/fonts"
 
     ${python.interpreter} -c ${lib.escapeShellArg removeHellixFonts}
+
+    # Studio serves the checked-in build from frontend/dist. Dropping the
+    # sources and package-manager metadata keeps the runtime output smaller and
+    # avoids shipping files that are not used by the packaged application.
     find studio/frontend -mindepth 1 -maxdepth 1 ! -name dist -exec rm -rf {} +
     ${python.interpreter} -c ${lib.escapeShellArg patchTransformersRuntimeInstaller}
 
@@ -193,6 +204,10 @@ buildPythonPackage (finalAttrs: {
 
     cp -r studio "$site/"
 
+    # The unstructured seed plugin is bundled in the Studio tree rather than
+    # shipped as a separate PyPI distribution. Data Designer discovers plugins
+    # through importlib.metadata entry points, so install minimal dist-info
+    # metadata next to the copied package.
     cp -r \
       studio/backend/plugins/data-designer-unstructured-seed/src/data_designer_unstructured_seed \
       "$site/"

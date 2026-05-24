@@ -49,6 +49,9 @@ buildPythonPackage (finalAttrs: {
     hash = "sha256-WT22N++iuHQodHR0VnS7yMr0FMMlCXn7s+ET/sQS6EQ=";
   };
 
+  # The PyPI sdist currently stores this file with CRLF line endings. Normalize
+  # it before applying the external patch so the patch remains readable and
+  # still fails loudly if the upstream guards move or change.
   prePatch = ''
     sed -i 's/\r$//' unsloth_zoo/__init__.py
   '';

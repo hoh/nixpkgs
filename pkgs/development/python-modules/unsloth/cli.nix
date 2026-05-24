@@ -22,6 +22,11 @@
 }:
 
 let
+  # Upstream's CLI expects Studio to live in a user-managed venv and allows the
+  # setup/update commands to mutate that venv. In nixpkgs the CLI and Studio are
+  # packaged together, so patch the CLI to call the packaged backend directly,
+  # reject mutable setup/update flows, and install signal handlers for the
+  # in-process server path.
   nixPackagedStudioPatch = ''
     from pathlib import Path
 

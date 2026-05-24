@@ -75,6 +75,10 @@ buildPythonPackage (finalAttrs: {
     sed -i '/^\[project\.scripts\]/,/^$/d' pyproject.toml
   '';
 
+  # Upstream imports helper APIs that are present in its pinned dependency set,
+  # but nixpkgs carries newer transformers/huggingface-hub versions. Provide
+  # small fallback shims so the package can use the shared nixpkgs dependency
+  # graph instead of pinning older libraries just for these decorators.
   prePatch = ''
     sed -i '/^import warnings, subprocess, inspect, psutil, os, math$/a \
 try:\
