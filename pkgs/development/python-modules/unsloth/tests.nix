@@ -16,11 +16,10 @@ let
   gpuPython =
     let
       self = python.override {
-        packageOverrides =
-          final: prev: {
-            torch = basePythonPackages.torchWithCuda;
-            triton = basePythonPackages.triton-cuda;
-          };
+        packageOverrides = final: prev: {
+          torch = basePythonPackages.torchWithCuda;
+          triton = basePythonPackages.triton-cuda;
+        };
         inherit self;
       };
     in
@@ -56,6 +55,19 @@ let
   '';
 in
 {
+  core-license-split = runCommand "unsloth-core-license-split" { } ''
+    site="${unsloth}/${python.sitePackages}"
+
+    test -d "$site/unsloth"
+    test ! -e "$site/unsloth_cli"
+    test ! -e "$site/studio"
+    test ! -e "$site/unsloth/kernels/moe"
+    test ! -e "${unsloth}/bin/unsloth"
+    test ! -e "${unsloth}/COPYING"
+
+    touch $out
+  '';
+
   cuda = {
     qlora-train-and-merge =
       (
