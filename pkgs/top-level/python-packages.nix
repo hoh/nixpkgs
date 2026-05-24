@@ -3638,6 +3638,14 @@ self: super: with self; {
 
   dataconf = callPackage ../development/python-modules/dataconf { };
 
+  data-designer = callPackage ../development/python-modules/data-designer { };
+
+  data-designer-config = callPackage ../development/python-modules/data-designer-config { };
+
+  data-designer-engine = callPackage ../development/python-modules/data-designer-engine {
+    sqlfluff = toPythonModule (pkgs.sqlfluff.override { python3Packages = self; });
+  };
+
   datadiff = callPackage ../development/python-modules/datadiff { };
 
   datadog = callPackage ../development/python-modules/datadog { };
@@ -8119,6 +8127,8 @@ self: super: with self; {
   jsonpath-ng = callPackage ../development/python-modules/jsonpath-ng { };
 
   jsonpath-python = callPackage ../development/python-modules/jsonpath-python { };
+
+  jsonpath-rust-bindings = callPackage ../development/python-modules/jsonpath-rust-bindings { };
 
   jsonpath-rw = callPackage ../development/python-modules/jsonpath-rw { };
 
