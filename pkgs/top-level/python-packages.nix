@@ -20868,6 +20868,8 @@ self: super: with self; {
 
   unsloth = callPackage ../development/python-modules/unsloth { };
 
+  unsloth-cli = callPackage ../development/python-modules/unsloth/cli.nix { };
+
   unsloth-studio = callPackage ../development/python-modules/unsloth/studio.nix { };
 
   unsloth-zoo = callPackage ../development/python-modules/unsloth-zoo { };
