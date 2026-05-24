@@ -3646,6 +3646,9 @@ self: super: with self; {
     sqlfluff = toPythonModule (pkgs.sqlfluff.override { python3Packages = self; });
   };
 
+  data-designer-unstructured-seed =
+    callPackage ../development/python-modules/data-designer-unstructured-seed { };
+
   datadiff = callPackage ../development/python-modules/datadiff { };
 
   datadog = callPackage ../development/python-modules/datadog { };

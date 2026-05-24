@@ -156,6 +156,8 @@ in
       }
       ''
         python - <<'PY'
+        import os
+        import sys
         from pathlib import Path
 
         import studio.backend.run  # Adds studio/backend for upstream absolute imports.
@@ -167,6 +169,8 @@ in
 
         assert not (home / ".unsloth" / "studio" / ".venv_t5_530").exists()
         assert not (home / ".unsloth" / "studio" / ".venv_t5_550").exists()
+        assert not any(".venv_t5" in path for path in sys.path), sys.path
+        assert ".venv_t5" not in os.environ.get("PYTHONPATH", "")
 
         try:
             tv._install_to_dir("transformers==5.5.0", str(home / "target"))

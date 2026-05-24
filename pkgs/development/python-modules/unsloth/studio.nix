@@ -9,6 +9,7 @@
   cryptography,
   datasets,
   data-designer,
+  data-designer-unstructured-seed,
   ddgs,
   diceware,
   easydict,
@@ -73,9 +74,10 @@ let
   '';
 
   # Upstream Studio switches transformers versions by installing packages into
-  # mutable per-user venv directories at runtime. Nix packages must be immutable
-  # and offline, so keep upstream's model-tier detection but make the install
-  # hooks validate the Nix-provided transformers instead of invoking pip/uv.
+  # mutable per-user venv directories at runtime and prepending those directories
+  # to sys.path. Nix packages must be immutable and offline, so keep upstream's
+  # model-tier detection but validate the Nix-provided transformers without
+  # creating fake venv paths or mutating PYTHONPATH.
   patchTransformersRuntimeInstaller = ''
     from pathlib import Path
     import re
@@ -84,6 +86,31 @@ let
     path = Path("studio/backend/utils/transformers_version.py")
     text = path.read_text()
 
+    text, count = re.subn(
+        r"Two separate target directories are maintained:.*?pre-installed by setup\.sh\.\n",
+        textwrap.dedent(
+            """
+            The Nix package keeps this model-tier detection code, but does not create
+            per-user venv directories or install Python packages at runtime. Training,
+            inference, and export use the immutable transformers package from Nix.
+            """
+        ),
+        text,
+        count = 1,
+        flags = re.DOTALL,
+    )
+    if count != 1:
+        raise RuntimeError("did not replace transformers version-switching docstring")
+
+    text, count = re.subn(
+        r"# Pre-installed directories .*?setup\.ps1\.\n",
+        "# Compatibility directory names retained for upstream helper APIs; Nix never creates them.\n",
+        text,
+        count = 1,
+    )
+    if count != 1:
+        raise RuntimeError("did not replace transformers venv directory comment")
+
     def replace_function(source: str, name: str, replacement: str) -> str:
         pattern = re.compile(rf"^def {name}\(.*?(?=^def |\Z)", re.DOTALL | re.MULTILINE)
         replacement = textwrap.dedent(replacement).strip() + "\n\n"
@@ -91,6 +118,71 @@ let
         if count != 1:
             raise RuntimeError(f"did not replace {name}")
         return source
+
+    text = replace_function(
+        text,
+        "activate_transformers_for_subprocess",
+        """
+        def _version_tuple(value: str) -> tuple[int, ...]:
+            parts: list[int] = []
+            for part in value.split("."):
+                digits = ""
+                for char in part:
+                    if not char.isdigit():
+                        break
+                    digits += char
+                if digits == "":
+                    break
+                parts.append(int(digits))
+            return tuple(parts)
+
+
+        def _required_transformers_version_from_packages(packages: tuple[str, ...]) -> str | None:
+            for pkg in packages:
+                if pkg.startswith("transformers=="):
+                    return pkg.split("==", 1)[1]
+            return None
+
+
+        def _ensure_nix_transformers_version(required_version: str | None, label: str) -> None:
+            if required_version is None:
+                return
+            try:
+                import transformers
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Could not import Nix-packaged transformers: {exc}"
+                ) from exc
+
+            installed = getattr(transformers, "__version__", "")
+            if _version_tuple(installed) < _version_tuple(required_version):
+                raise RuntimeError(
+                    f"{label} requires transformers >= {required_version}, "
+                    f"but the Nix package provides {installed}."
+                )
+            logger.info(
+                "Using Nix-packaged transformers %s for %s; no runtime venv activation",
+                installed,
+                label,
+            )
+
+
+        def _required_transformers_version_for_model(model_name: str) -> tuple[str, str]:
+            resolved = _resolve_base_model(model_name)
+            tier = get_transformers_tier(resolved)
+            if tier == "550":
+                return resolved, TRANSFORMERS_550_VERSION
+            if tier == "530":
+                return resolved, TRANSFORMERS_530_VERSION
+            return resolved, TRANSFORMERS_DEFAULT_VERSION
+
+
+        def activate_transformers_for_subprocess(model_name: str) -> None:
+            resolved, required_version = _required_transformers_version_for_model(model_name)
+            _ensure_nix_transformers_version(required_version, f"{model_name} (resolved: {resolved})")
+        """,
+    )
+
     text = replace_function(
         text,
         "_install_to_dir",
@@ -109,49 +201,93 @@ let
         "_ensure_venv_dir",
         """
         def _ensure_venv_dir(venv_dir: str, packages: tuple[str, ...], label: str) -> bool:
-            # Validate packaged transformers instead of creating mutable venvs.
-            required_version = None
-            for pkg in packages:
-                if pkg.startswith("transformers=="):
-                    required_version = pkg.split("==", 1)[1]
-                    break
-
-            if required_version is None:
-                return True
-
-            def version_tuple(value: str) -> tuple[int, ...]:
-                parts: list[int] = []
-                for part in value.split("."):
-                    digits = ""
-                    for char in part:
-                        if not char.isdigit():
-                            break
-                        digits += char
-                    if digits == "":
-                        break
-                    parts.append(int(digits))
-                return tuple(parts)
-
-            try:
-                import transformers
-            except Exception as exc:
-                raise RuntimeError(
-                    f"Could not import Nix-packaged transformers: {exc}"
-                ) from exc
-
-            installed = getattr(transformers, "__version__", "")
-            if version_tuple(installed) < version_tuple(required_version):
-                raise RuntimeError(
-                    f"{label} requires transformers >= {required_version}, "
-                    f"but the Nix package provides {installed}."
-                )
-            logger.info(
-                "Using Nix-packaged transformers %s for %s; not installing into %s",
-                installed,
+            _ensure_nix_transformers_version(
+                _required_transformers_version_from_packages(packages),
                 label,
-                venv_dir,
             )
             return True
+        """,
+    )
+    text = replace_function(
+        text,
+        "_venv_dir_is_valid",
+        """
+        def _venv_dir_is_valid(venv_dir: str, packages: tuple[str, ...]) -> bool:
+            _ensure_nix_transformers_version(
+                _required_transformers_version_from_packages(packages),
+                Path(venv_dir).name,
+            )
+            return True
+        """,
+    )
+    text = replace_function(
+        text,
+        "_venv_t5_is_valid",
+        """
+        def _venv_t5_is_valid() -> bool:
+            return _venv_dir_is_valid(_VENV_T5_550_DIR, _VENV_T5_550_PACKAGES)
+        """,
+    )
+    text = replace_function(
+        text,
+        "_ensure_venv_t5_530_exists",
+        """
+        def _ensure_venv_t5_530_exists() -> bool:
+            return _ensure_venv_dir(
+                _VENV_T5_530_DIR, _VENV_T5_530_PACKAGES, "transformers 5.3.0"
+            )
+        """,
+    )
+    text = replace_function(
+        text,
+        "_ensure_venv_t5_550_exists",
+        """
+        def _ensure_venv_t5_550_exists() -> bool:
+            return _ensure_venv_dir(
+                _VENV_T5_550_DIR, _VENV_T5_550_PACKAGES, "transformers 5.5.0"
+            )
+        """,
+    )
+    text = replace_function(
+        text,
+        "_ensure_venv_t5_exists",
+        """
+        def _ensure_venv_t5_exists() -> bool:
+            return _ensure_venv_t5_550_exists()
+        """,
+    )
+    text = replace_function(
+        text,
+        "_activate_venv",
+        """
+        def _activate_venv(venv_dir: str, label: str) -> None:
+            logger.info("Using Nix-packaged %s; not prepending %s", label, venv_dir)
+        """,
+    )
+    text = replace_function(
+        text,
+        "_deactivate_5x",
+        """
+        def _deactivate_5x() -> None:
+            for d in (_VENV_T5_530_DIR, _VENV_T5_550_DIR):
+                while d in sys.path:
+                    sys.path.remove(d)
+            pythonpath = os.environ.get("PYTHONPATH")
+            if pythonpath:
+                paths = [p for p in pythonpath.split(os.pathsep) if p not in (_VENV_T5_530_DIR, _VENV_T5_550_DIR)]
+                if paths:
+                    os.environ["PYTHONPATH"] = os.pathsep.join(paths)
+                else:
+                    os.environ.pop("PYTHONPATH", None)
+        """,
+    )
+    text = replace_function(
+        text,
+        "ensure_transformers_version",
+        """
+        def ensure_transformers_version(model_name: str) -> None:
+            resolved, required_version = _required_transformers_version_for_model(model_name)
+            _ensure_nix_transformers_version(required_version, f"{model_name} (resolved: {resolved})")
         """,
     )
 
@@ -204,26 +340,6 @@ buildPythonPackage (finalAttrs: {
 
     cp -r studio "$site/"
 
-    # The unstructured seed plugin is bundled in the Studio tree rather than
-    # shipped as a separate PyPI distribution. Data Designer discovers plugins
-    # through importlib.metadata entry points, so install minimal dist-info
-    # metadata next to the copied package.
-    cp -r \
-      studio/backend/plugins/data-designer-unstructured-seed/src/data_designer_unstructured_seed \
-      "$site/"
-    plugin_dist="$site/data_designer_unstructured_seed-0.1.0.dist-info"
-    install -d "$plugin_dist"
-    cat > "$plugin_dist/METADATA" <<EOF
-    Metadata-Version: 2.1
-    Name: data-designer-unstructured-seed
-    Version: 0.1.0
-    EOF
-    cat > "$plugin_dist/entry_points.txt" <<EOF
-    [data_designer.plugins]
-    unstructured = data_designer_unstructured_seed.plugin:unstructured_seed_plugin
-    EOF
-    touch "$plugin_dist/RECORD"
-
     install -Dm644 COPYING "$out/share/licenses/${finalAttrs.pname}/COPYING"
     install -Dm644 studio/LICENSE.AGPL-3.0 "$out/share/licenses/${finalAttrs.pname}/LICENSE.AGPL-3.0"
 
@@ -248,6 +364,7 @@ buildPythonPackage (finalAttrs: {
     cryptography
     datasets
     data-designer
+    data-designer-unstructured-seed
     ddgs
     diceware
     easydict
@@ -311,5 +428,6 @@ buildPythonPackage (finalAttrs: {
     license = lib.licenses.agpl3Only;
     maintainers = with lib.maintainers; [ hoh ];
     mainProgram = "unsloth-studio";
+    platforms = lib.platforms.linux;
   };
 })
