@@ -74,6 +74,9 @@ buildPythonPackage rec {
     tiktoken
   ];
 
+  # Upstream uses tight upper bounds for fast-moving helper libraries. The
+  # nixpkgs versions remain API-compatible for the validated imports and avoid
+  # carrying extra pinned copies.
   pythonRelaxDeps = [
     "faker"
     "fsspec"
@@ -90,5 +93,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/NVIDIA-NeMo/DataDesigner";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ hoh ];
+    platforms = lib.platforms.unix;
   };
 }

@@ -63,8 +63,8 @@ buildPythonPackage (finalAttrs: {
       --replace-fail 'if (datasets_version <= Version("4.5.0")) and (' \
                      'if (datasets_version <= Version("4.4.1")) and ('
 
-    # Strip AGPL-licensed CLI, Studio, and grouped-GEMM sources from the
-    # Apache-licensed Python package.
+    # Strip separately AGPL-licensed CLI, Studio, and grouped-GEMM sources from
+    # the core Python package.
     rm -rf \
       unsloth_cli \
       studio \
@@ -80,33 +80,33 @@ buildPythonPackage (finalAttrs: {
   # small fallback shims so the package can use the shared nixpkgs dependency
   # graph instead of pinning older libraries just for these decorators.
   prePatch = ''
-    sed -i '/^import warnings, subprocess, inspect, psutil, os, math$/a \
-try:\
-    from transformers.utils import auto_docstring\
-except Exception:\
-    def auto_docstring(*args, **kwargs):\
-        def _identity(func):\
+        sed -i '/^import warnings, subprocess, inspect, psutil, os, math$/a \
+    try:\
+        from transformers.utils import auto_docstring\
+    except Exception:\
+        def auto_docstring(*args, **kwargs):\
+            def _identity(func):\
+                return func\
+    \
+            return _identity\
+    try:\
+        from huggingface_hub.dataclasses import strict\
+    except Exception:\
+        def strict(func):\
             return func\
-\
-        return _identity\
-try:\
-    from huggingface_hub.dataclasses import strict\
-except Exception:\
-    def strict(func):\
-        return func\
-try:\
-    from transformers.utils.type_validators import interval\
-except Exception:\
-    def interval(*args, **kwargs):\
-        def _inner(*inner_args, **inner_kwargs):\
-            if "default" in inner_kwargs:\
-                return inner_kwargs["default"]\
-            if inner_args:\
-                return inner_args[0]\
-            return None\
-\
-        return _inner\
-' unsloth/models/_utils.py
+    try:\
+        from transformers.utils.type_validators import interval\
+    except Exception:\
+        def interval(*args, **kwargs):\
+            def _inner(*inner_args, **inner_kwargs):\
+                if "default" in inner_kwargs:\
+                    return inner_kwargs["default"]\
+                if inner_args:\
+                    return inner_args[0]\
+                return None\
+    \
+            return _inner\
+    ' unsloth/models/_utils.py
   '';
   build-system = [
     setuptools
@@ -180,7 +180,11 @@ except Exception:\
   meta = {
     description = "Finetune Llama 3.3, DeepSeek-R1 & Reasoning LLMs 2x faster with 70% less memory";
     homepage = "https://github.com/unslothai/unsloth";
-    license = lib.licenses.asl20;
+    license = with lib.licenses; [
+      asl20
+      agpl3Only
+    ];
     maintainers = with lib.maintainers; [ hoh ];
+    platforms = lib.platforms.linux;
   };
 })

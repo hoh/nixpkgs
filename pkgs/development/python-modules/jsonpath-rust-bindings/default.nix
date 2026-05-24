@@ -33,5 +33,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/night-crawler/jsonpath-rust-bindings";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ hoh ];
+    platforms = lib.platforms.unix;
   };
 }

@@ -58,6 +58,9 @@ buildPythonPackage rec {
     rich
   ];
 
+  # Upstream pins these to the latest release-line ranges, but nixpkgs keeps
+  # compatible versions outside those bounds and the import checks cover the
+  # modules used by Data Designer.
   pythonRelaxDeps = [
     "pyarrow"
     "python-json-logger"
@@ -73,5 +76,6 @@ buildPythonPackage rec {
     homepage = "https://github.com/NVIDIA-NeMo/DataDesigner";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ hoh ];
+    platforms = lib.platforms.unix;
   };
 }

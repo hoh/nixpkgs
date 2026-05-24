@@ -71,6 +71,9 @@ buildPythonPackage (finalAttrs: {
     ./dont-require-unsloth.patch
   ];
 
+  # Upstream excludes known-bad dependency versions while also capping some
+  # ranges below the versions carried by nixpkgs. The packaged import/GPU checks
+  # cover the runtime surface we keep.
   pythonRelaxDeps = [
     "datasets"
     "torch"
@@ -140,5 +143,6 @@ buildPythonPackage (finalAttrs: {
     homepage = "https://github.com/unslothai/unsloth_zoo";
     license = lib.licenses.lgpl3Plus;
     maintainers = with lib.maintainers; [ hoh ];
+    platforms = lib.platforms.linux;
   };
 })

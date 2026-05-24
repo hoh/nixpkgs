@@ -2,19 +2,17 @@ diff --git a/unsloth_zoo/__init__.py b/unsloth_zoo/__init__.py
 index 4ca081e..983f656 100644
 --- a/unsloth_zoo/__init__.py
 +++ b/unsloth_zoo/__init__.py
-@@ -196,8 +196,6 @@ _SKIP_GPU_INIT = is_mlx_available()
- del _old_name, _importlib, _sys, _types
- 
+@@ -198,6 +198,4 @@
  if not _SKIP_GPU_INIT:
 -    if find_spec("unsloth") is None:
 -        raise ImportError("Please install Unsloth via `pip install unsloth`!")
      if find_spec("torch") is None:
          raise ImportError(
              "Unsloth: Pytorch is not installed. Go to https://pytorch.org/.\n"\
-@@ -382,9 +380,6 @@ if not _SKIP_GPU_INIT:
+@@ -382,9 +380,5 @@ if not _SKIP_GPU_INIT:
      del clean_expandable_segments_value
      del _ORIGINAL_PYTORCH_CUDA_ALLOC_CONF, _ORIGINAL_PYTORCH_HIP_ALLOC_CONF, _HAS_ORIGINAL_PYTORCH_ALLOC_CONF
- 
+-
 -    if not ("UNSLOTH_IS_PRESENT" in os.environ):
 -        raise ImportError("Please install Unsloth via `pip install unsloth`!")
 -

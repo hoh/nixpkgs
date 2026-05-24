@@ -169,5 +169,6 @@ buildPythonPackage (finalAttrs: {
     license = lib.licenses.agpl3Only;
     maintainers = with lib.maintainers; [ hoh ];
     mainProgram = "unsloth";
+    platforms = lib.platforms.linux;
   };
 })
