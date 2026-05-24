@@ -93,6 +93,10 @@ buildPythonPackage (finalAttrs: {
     # nondeterministic, tests GC behaviour by thresholding global ram usage
     "test_free_memory_dereferences_prepared_components"
 
+    # Fragile localhost Gloo setup in the Nix sandbox:
+    # RuntimeError: Gloo connectFullMesh failed with Connection closed by peer.
+    "test_ops"
+
     # set the environment variable, CC, which conflicts with standard environment
     "test_patch_environment_key_exists"
   ]
