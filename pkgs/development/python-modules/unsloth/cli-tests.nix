@@ -170,15 +170,11 @@ in
             ];
           }
           ''
-            import json
+            import importlib.util
             import os
             import signal
-            import socket
             import subprocess
             import sys
-            import time
-            import urllib.error
-            import urllib.request
             from pathlib import Path
 
             import torch
@@ -191,26 +187,19 @@ in
             os.environ["HF_HUB_OFFLINE"] = "1"
             os.environ["TRANSFORMERS_OFFLINE"] = "1"
             os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+            # stdenv sets SSL_CERT_FILE to a fake path in builders. httpx
+            # treats that as an explicit CA file and fails during import.
+            os.environ.pop("SSL_CERT_FILE", None)
 
-            def free_port():
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                    sock.bind(("127.0.0.1", 0))
-                    return sock.getsockname()[1]
+            support_spec = importlib.util.spec_from_file_location(
+                "studio_server_test_support",
+                "${./studio_server_test_support.py}",
+            )
+            support = importlib.util.module_from_spec(support_spec)
+            assert support_spec.loader is not None
+            support_spec.loader.exec_module(support)
 
-            def read_json(port, path, timeout=90):
-                url = f"http://127.0.0.1:{port}{path}"
-                deadline = time.monotonic() + timeout
-                last_error = None
-                while time.monotonic() < deadline:
-                    try:
-                        with urllib.request.urlopen(url, timeout=5) as response:
-                            return json.loads(response.read())
-                    except (urllib.error.URLError, TimeoutError, OSError) as error:
-                        last_error = error
-                        time.sleep(1)
-                raise AssertionError(f"{url} did not become ready: {last_error}")
-
-            port = free_port()
+            port = support.free_port()
             unsloth = Path(sys.executable).with_name("unsloth")
             assert unsloth.is_file(), f"missing CLI executable at {unsloth}"
 
@@ -229,8 +218,8 @@ in
                 text=True,
             )
             try:
-                health = read_json(port, "/api/health")
-                system = read_json(port, "/api/system")
+                health = support.read_json(port, "/api/health")
+                system = support.read_authenticated_system(port)
 
                 assert health["status"] == "healthy", health
                 assert health["chat_only"] is False, health

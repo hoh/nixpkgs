@@ -41,14 +41,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "unsloth";
-  version = "2026.4.5";
+  version = "2026.5.6";
   pyproject = true;
 
   # Tags on the GitHub repo don't match
   src = fetchPypi {
     pname = "unsloth";
     inherit (finalAttrs) version;
-    hash = "sha256-35+IMV/WHVi0iGnOxtfSZNKo0+0ZlNVlbNtA5tXw9sE=";
+    hash = "sha256-rpwOEks8hTgxF8U7DmTv+gYOHZEXgczCMCkjkuwhGAg=";
   };
 
   postPatch = ''

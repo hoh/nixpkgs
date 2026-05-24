@@ -39,15 +39,19 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "unsloth-zoo";
-  version = "2026.4.7";
+  version = "2026.5.4";
   pyproject = true;
 
   # no tags on GitHub
   src = fetchPypi {
     pname = "unsloth_zoo";
     inherit (finalAttrs) version;
-    hash = "sha256-jJ58d2+5lEALEaASELZtQkY2YxNWaLrfLvOCUGnwrh4=";
+    hash = "sha256-WT22N++iuHQodHR0VnS7yMr0FMMlCXn7s+ET/sQS6EQ=";
   };
+
+  prePatch = ''
+    sed -i 's/\r$//' unsloth_zoo/__init__.py
+  '';
 
   postPatch = ''
     substituteInPlace pyproject.toml \
@@ -59,15 +63,15 @@ buildPythonPackage (finalAttrs: {
         "setuptools-scm"
   '';
 
+  patches = [
+    # Avoid circular dependency in Nix, since `unsloth` depends on `unsloth-zoo`.
+    ./dont-require-unsloth.patch
+  ];
+
   pythonRelaxDeps = [
     "datasets"
     "torch"
     "transformers"
-  ];
-
-  patches = [
-    # Avoid circular dependency in Nix, since `unsloth` depends on `unsloth-zoo`.
-    ./dont-require-unsloth.patch
   ];
 
   build-system = [
