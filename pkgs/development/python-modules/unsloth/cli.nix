@@ -28,7 +28,6 @@ let
     path = Path("unsloth_cli/commands/studio.py")
     text = path.read_text()
     text = text.replace("import os\n", "import os\nimport signal\n")
-    text = text.replace("import platform\n", "")
 
     def delete_between(text, start, end):
         begin = text.index(start)
@@ -51,11 +50,6 @@ let
         "\n"
     )
 
-    text = delete_between(
-        text,
-        "# __file__ is unsloth_cli/commands/studio.py -- two parents up is the package root\n",
-        "\n\n# \u2500\u2500 helpers for `unsloth studio run`",
-    )
     text = delete_between(
         text,
         "    # Always use the studio venv if it exists and we're not already in it\n",
